@@ -122,14 +122,6 @@ templateURI:
 ```
 
 ### Deploying SharedStorefrontLazyMintAdapter contract
-Before this contract, we should set the following hardcoded state variables in the `SharedStorefrontLazyMintAdapter.sol`.
-```solidity
-address private constant SEAPORT = 0x4F445109d11419c3612e43D2e71a3593921621E0;
-address private constant CONDUIT = 0xCef34f700b0F060fAA00E91001259E80Fcdc9570;
-```
-- SEAPORT: the address of the `Seaport` contract
-- CONDUIT: the address of the `Conduit` contract which is created from [this section](#creating-conduit).
-
 Run this script for deploying the contract.
 ```
 npx hardhat run script/deploy_lazymint_adapter.ts --network testnet
