@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ethers, network, waffle } from "hardhat";
-import { faucet } from "./utils/faucet";
+import { faucet } from "../utils/faucet";
 import type {
     AssetContractShared,
     AssetContractShared__factory as AssetContractSharedFactory,
@@ -11,12 +11,12 @@ import type {
     Seaport__factory as SeaportFactory,
     SharedStorefrontLazyMintAdapter,
     SharedStorefrontLazyMintAdapter__factory as SharedStorefrontLazyMintAdapterFactory,
-} from "../typechain-types";
-import { createOrder, setChainId, setSeaport } from "../utils/CommonFunctions";
-import { createTokenId } from "../utils/ParseTokenID";
+} from "../../typechain-types";
+import { createOrder, setChainId, setSeaport } from "../../utils/CommonFunctions";
+import { createTokenId } from "../../utils/ParseTokenID";
 import { BigNumber, BigNumberish } from "ethers";
-import { getItemETH, toBN, toKey } from "./utils/encoding";
-import type { OfferItem } from "./utils/types";
+import { getItemETH, toBN, toKey } from "../utils/encoding";
+import type { OfferItem } from "../utils/types";
 const { parseEther } = ethers.utils;
 
 const ZeroAddress = "0x0000000000000000000000000000000000000000";
@@ -89,18 +89,10 @@ describe(`Fulfilling a basic order offering NFT and getting BOA(BOASPACE)`, func
         await marketplace.deployed();
         console.log("Marketplace:", marketplace.address);
 
-        // Deploy SharedStorefrontLazyMintAdapter
-        const lazymintAdapterFactory = await ethers.getContractFactory("SharedStorefrontLazyMintAdapter");
-        lazymintAdapter = await lazymintAdapterFactory.connect(admin).deploy(assetToken.address);
-        await lazymintAdapter.deployed();
-        console.log("SharedStorefrontLazyMintAdapter:", lazymintAdapter.address);
-
         setSeaport(marketplace);
 
         // approve to the marketpalce
-        await assetToken.connect(adminSigner).setApprovalForAll(marketplace.address, true);
-        await assetToken.connect(adminSigner).addSharedProxyAddress(marketplace.address);
-        console.log("SetApprovalForAll called");
+        // await assetToken.connect(adminSigner).addSharedProxyAddress(marketplace.address);
     });
 
     it("Mint a AssetContractShared token", async () => {
@@ -114,6 +106,8 @@ describe(`Fulfilling a basic order offering NFT and getting BOA(BOASPACE)`, func
         console.log("Combined tokenId: %s (%s)", tokenId.toString(), tokenId.toHexString());
         await creatorContract.mint(offerer.address, tokenId, tokenQuantity, buffer);
         console.log("Token minted to:", offerer.address);
+
+        await creatorContract.setApprovalForAll(marketplace.address, true);
     });
 
     it("Transfer a AssetContractShared token", async () => {

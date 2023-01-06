@@ -23,6 +23,7 @@ async function main() {
     const admin = new Wallet(process.env.ADMIN_KEY || "");
     const zone = new Wallet(process.env.ZONE_KEY || "");
     const nftSeller = new Wallet(process.env.ORDER_NFT_SELLER_KEY || "");
+    const nftSellerSigner = new NonceManager(new GasPriceManager(provider.getSigner(nftSeller.address)));
     const adminSigner = new NonceManager(new GasPriceManager(provider.getSigner(admin.address)));
     const marketplaceContract = await SeaportFactory.attach(process.env.SEAPORT_ADDRESS || "");
     const sharedAsset = await AssetContractFactory.attach(process.env.ASSET_CONTRACT_SHARED_ADDRESS || "");
@@ -30,8 +31,9 @@ async function main() {
     setContracts(marketplaceContract, sharedAsset);
 
     // approve to the marketplace
-    await sharedAsset.connect(adminSigner).setApprovalForAll(marketplaceContract.address, true);
     // await sharedAsset.connect(adminSigner).addSharedProxyAddress(marketplaceContract.address);
+
+    await sharedAsset.connect(nftSellerSigner).setApprovalForAll(marketplaceContract.address, true);
     console.log("SetApprovalForAll called");
 
     // NFT seller creates an order that has an NFT token that he owns

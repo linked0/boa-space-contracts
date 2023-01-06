@@ -73,6 +73,7 @@
     "build": "hardhat compile --config ./hardhat.config.ts",
     "build:ref": "hardhat compile --config ./hardhat-reference.config.ts",
     "test": "hardhat test --config ./hardhat.config.ts",
+    "test:boa": "hardhat test --config ./hardhat.config.ts test/boaspace/*.ts",
     "test:ref": "REFERENCE=true hardhat test --config ./hardhat-reference.config.ts",
     "profile": "REPORT_GAS=true hardhat test --config ./hardhat.config.ts",
     "coverage": "hardhat coverage --config ./hardhat-coverage.config.ts --solcoverjs ./config/.solcover.js",
@@ -88,7 +89,7 @@
     "test:forge:lite": "FOUNDRY_PROFILE=reference forge build; FOUNDRY_PROFILE=lite forge test -vvv",
     "prepare": "husky install",
     "prettier:ts": "node_modules/.bin/prettier --write --config .prettierrc 'test/**/*.ts' 'utils/**/*.ts' 'script/**/*.ts'",
-    "prettier:ts:boa": "node_modules/.bin/prettier --write --config .prettierrc 'script/**/*.ts' 'utils/*.ts' 'test/boaspace.basicfulfill.ts'"
+    "prettier:ts:boa": "node_modules/.bin/prettier --write --config .prettierrc 'script/**/*.ts' 'utils/*.ts' 'test/boaspace/*.ts'"
   },
   "lint-staged": {
     "*.sol": "prettier --write",
