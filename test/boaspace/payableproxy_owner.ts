@@ -25,7 +25,7 @@ describe(`Initialize PayableProxy, UpgradeBeacon, EthereumFeeCollector`, functio
 
     setChainId(31337);
 
-    const [admin, owner, user] = provider.getWallets();
+    const [admin, owner, operator] = provider.getWallets();
     const adminSigner = provider.getSigner(admin.address);
     const ownerSigner = provider.getSigner(owner.address);
 
@@ -72,17 +72,6 @@ describe(`Initialize PayableProxy, UpgradeBeacon, EthereumFeeCollector`, functio
         console.log("PayableProxy:", proxyContract.address);
     });
 
-    it("Initialize the EthereumFeeCollector and check the owner", async () => {
-        // initialize the EthereumFeeCollector contract
-        await feeCollectorContract.connect(admin).initialize(owner.address);
-
-        expect(await feeCollectorContract.owner()).to.equal(owner.address);
-
-        // Trying to assign operator with admin account
-        await expect(feeCollectorContract.connect(admin).assignOperator(admin.address))
-            .to.be.revertedWith("CallerIsNotOwner");
-    });
-
     it("Initialize the UpgradeBeacon and check the owner", async () => {
         // initialize the UpgradeBeacon contract
         await beaconContract.connect(admin).initialize(owner.address, feeCollectorContract.address);
@@ -97,17 +86,50 @@ describe(`Initialize PayableProxy, UpgradeBeacon, EthereumFeeCollector`, functio
         // trying to upgrade to new implementation with admin account
         await expect(beaconContract.connect(admin).upgradeTo(feeCollectorContract.address))
             .to.be.revertedWith("CallerIsNotOwner");
+
+        // trying to upgrade to new implementation with owner account
+        await expect(beaconContract.connect(owner).upgradeTo(feeCollectorContract.address));
     });
 
-    it("Initialize the UpgradeBeacon and the PayableProxy and check the owner", async () => {
+    it("Initialize EthereumFeeCollector and check owner", async () => {
+        // initialize the EthereumFeeCollector contract
+        await feeCollectorContract.connect(admin).initialize(owner.address);
+
+        expect(await feeCollectorContract.owner()).to.equal(owner.address);
+
+        // try to assign operator with admin account
+        await expect(feeCollectorContract.connect(admin).assignOperator(operator.address))
+            .to.be.revertedWith("CallerIsNotOwner");
+
+        // assign operator with owner account
+        await expect(feeCollectorContract.connect(owner).assignOperator(operator.address));
+    });
+
+    it("Initialize contracts through PayableProxy and assingn operator", async () => {
         // initialize the UpgradeBeacon contract
         await beaconContract.connect(admin).initialize(owner.address, feeCollectorContract.address);
 
         // initialize the PayableProxy
         await proxyContract.connect(admin).initialize(owner.address);
 
-        // trying to assign operator with admin account
-        await expect(feeCollectorContract.connect(admin).assignOperator(admin.address))
+        // FAIL: try to assign operator with admin account
+        await expect(feeCollectorContract.connect(admin).assignOperator(operator.address))
             .to.be.revertedWith("CallerIsNotOwner");
+
+        // FAIL: try to assign operator with owner account
+        await expect(feeCollectorContract.connect(owner).assignOperator(operator.address))
+            .to.be.revertedWith("CallerIsNotOwner");
+
+        // assign operator with owner account through PayableProxy
+        const encodedData = feeCollectorContract.interface.encodeFunctionData(
+            "assignOperator",
+            [
+                operator.address
+            ]
+        );
+        await ownerSigner.sendTransaction({
+            to: proxyContract.address,
+            data: encodedData
+        })
     });
 });
