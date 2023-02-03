@@ -5,8 +5,8 @@ import { faucet } from "../utils/faucet";
 import type {
     WETH__factory as WETHFactory,
     WETH,
-    EthereumFeeCollector__factory as EthereumFeeCollectorFactory,
-    EthereumFeeCollector,
+    BoaFeeCollector__factory as BoaFeeCollectorFactory,
+    BoaFeeCollector,
     UpgradeBeacon__factory as UngradeBeaconFactory,
     UpgradeBeacon,
     PayableProxy__factory as PayableProxyFactory,
@@ -33,7 +33,7 @@ describe(`Sending fees through PayableProxy`, function () {
     const userSigner = provider.getSigner(user.address);
 
     let wboaContract: WETH;
-    let feeCollectorContract: EthereumFeeCollector;
+    let feeCollectorContract: BoaFeeCollector;
     let beaconContract: UpgradeBeacon;
     let proxyContract: PayableProxy;
 
@@ -48,11 +48,11 @@ describe(`Sending fees through PayableProxy`, function () {
         await wboaContract.deployed();
         console.log("WETH:", wboaContract.address);
 
-        // deploy EthereumFeeCollector contract
-        const feeCollectorFactory = await ethers.getContractFactory("EthereumFeeCollector");
-        feeCollectorContract = (await feeCollectorFactory.connect(admin).deploy()) as EthereumFeeCollector;
+        // deploy BoaFeeCollector contract
+        const feeCollectorFactory = await ethers.getContractFactory("BoaFeeCollector");
+        feeCollectorContract = (await feeCollectorFactory.connect(admin).deploy()) as BoaFeeCollector;
         await feeCollectorContract.deployed();
-        console.log("EthereumFeeCollector:", feeCollectorContract.address);
+        console.log("BoaFeeCollector:", feeCollectorContract.address);
 
         // deploy UpgradeBeacon contract
         const beaconFactory = await ethers.getContractFactory("UpgradeBeacon");
