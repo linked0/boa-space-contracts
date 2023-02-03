@@ -4,8 +4,8 @@ import { faucet } from "../utils/faucet";
 import type {
     WBOA9__factory as WBOA9Factory,
     WBOA9,
-    EthereumFeeCollector__factory as EthereumFeeCollectorFactory,
-    EthereumFeeCollector,
+    EBoaFeeCollector__factory as BoaFeeCollectorFactory,
+    BoaFeeCollector,
     UpgradeBeacon__factory as UngradeBeaconFactory,
     UpgradeBeacon,
     PayableProxy__factory as PayableProxyFactory,
@@ -20,7 +20,7 @@ const { parseEther } = ethers.utils;
 /**
  * Transfer fees through PayableProxy
  */
-describe(`Initialize PayableProxy, UpgradeBeacon, EthereumFeeCollector`, function () {
+describe(`Initialize PayableProxy, UpgradeBeacon, BoaFeeCollector`, function () {
     const { provider } = waffle;
 
     setChainId(31337);
@@ -31,7 +31,7 @@ describe(`Initialize PayableProxy, UpgradeBeacon, EthereumFeeCollector`, functio
 
     let twoStepContract: TwoStepOwnable;
     let wboaContract: WBOA9;
-    let feeCollectorContract: EthereumFeeCollector;
+    let feeCollectorContract: BoaFeeCollector;
     let beaconContract: UpgradeBeacon;
     let proxyContract: PayableProxy;
 
@@ -53,11 +53,11 @@ describe(`Initialize PayableProxy, UpgradeBeacon, EthereumFeeCollector`, functio
     });
 
     this.beforeEach(async () => {
-        // deploy EthereumFeeCollector contract
-        const feeCollectorFactory = await ethers.getContractFactory("EthereumFeeCollector");
-        feeCollectorContract = (await feeCollectorFactory.connect(admin).deploy()) as EthereumFeeCollector;
+        // deploy BoaFeeCollector contract
+        const feeCollectorFactory = await ethers.getContractFactory("BoaFeeCollector");
+        feeCollectorContract = (await feeCollectorFactory.connect(admin).deploy()) as BoaFeeCollector;
         await feeCollectorContract.deployed();
-        console.log("EthereumFeeCollector:", feeCollectorContract.address);
+        console.log("BoaFeeCollector:", feeCollectorContract.address);
 
         // deploy UpgradeBeacon contract
         const beaconFactory = await ethers.getContractFactory("UpgradeBeacon");
@@ -91,8 +91,8 @@ describe(`Initialize PayableProxy, UpgradeBeacon, EthereumFeeCollector`, functio
         await expect(beaconContract.connect(owner).upgradeTo(feeCollectorContract.address));
     });
 
-    it("Initialize EthereumFeeCollector and check owner", async () => {
-        // initialize the EthereumFeeCollector contract
+    it("Initialize BoaFeeCollector and check owner", async () => {
+        // initialize the BoaFeeCollector contract
         await feeCollectorContract.connect(admin).initialize(owner.address);
 
         expect(await feeCollectorContract.owner()).to.equal(owner.address);
