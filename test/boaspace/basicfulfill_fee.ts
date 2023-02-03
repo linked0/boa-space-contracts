@@ -7,8 +7,8 @@ import type {
     ConduitController,
     ConduitController__factory as ConduitControllerFactory,
     Conduit,
-    EthereumFeeCollector__factory as EthereumFeeCollectorFactory,
-    EthereumFeeCollector,
+    BoaFeeCollector__factory as BoaFeeCollectorFactory,
+    BoaFeeCollector,
     UpgradeBeacon__factory as UngradeBeaconFactory,
     UpgradeBeacon,
     PayableProxy__factory as PayableProxyFactory,
@@ -48,7 +48,7 @@ describe(`Fulfilling a basic order offering NFT and getting BOA(BOASPACE)`, func
     let lazymintAdapter: SharedStorefrontLazyMintAdapter;
 
     let wboaContract: WETH;
-    let feeCollectorContract: EthereumFeeCollector;
+    let feeCollectorContract: BoaFeeCollector;
     let beaconContract: UpgradeBeacon;
     let proxyContract: PayableProxy;
 
@@ -125,11 +125,11 @@ describe(`Fulfilling a basic order offering NFT and getting BOA(BOASPACE)`, func
         await wboaContract.deployed();
         console.log("WETH:", wboaContract.address);
 
-        // deploy EthereumFeeCollector contract
-        const feeCollectorFactory = await ethers.getContractFactory("EthereumFeeCollector");
-        feeCollectorContract = (await feeCollectorFactory.connect(admin).deploy()) as EthereumFeeCollector;
+        // deploy BoaFeeCollector contract
+        const feeCollectorFactory = await ethers.getContractFactory("BoaFeeCollector");
+        feeCollectorContract = (await feeCollectorFactory.connect(admin).deploy()) as BoaFeeCollector;
         await feeCollectorContract.deployed();
-        console.log("EthereumFeeCollector:", feeCollectorContract.address);
+        console.log("BoaFeeCollector:", feeCollectorContract.address);
 
         // deploy UpgradeBeacon contract
         const beaconFactory = await ethers.getContractFactory("UpgradeBeacon");

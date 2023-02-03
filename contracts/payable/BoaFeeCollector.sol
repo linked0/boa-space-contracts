@@ -9,15 +9,15 @@ import {
 } from "../interfaces/EthereumFeeCollectorInterface.sol";
 
 /**
- * @title   EthereumFeeCollector
- * @author  OpenSea Protocol Team
- * @notice  EthereumFeeCollector is a contract that is used as an
+ * @title   BoaFeeCollector
+ * @author  BOASpace Protocol Team
+ * @notice  BoaFeeCollector is a contract that is used as an
  *          implementation for a beacon proxy. It inherits the
  *          BaseFeeCollector allowing for native token and ERC20
  *          token withdrawals. In addition, allowing for unwrapping
  *          and transferring WETH.
  */
-contract EthereumFeeCollector is
+contract BoaFeeCollector is
     BaseFeeCollector,
     EthereumFeeCollectorInterface
 {
