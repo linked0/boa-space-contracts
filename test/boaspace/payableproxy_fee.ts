@@ -3,8 +3,8 @@ import { ethers, network, waffle } from "hardhat";
 import { BigNumber, BigNumberish } from "ethers";
 import { faucet } from "../utils/faucet";
 import type {
-    WBOA9__factory as WBOA9Factory,
-    WBOA9,
+    WETH__factory as WETHFactory,
+    WETH,
     EthereumFeeCollector__factory as EthereumFeeCollectorFactory,
     EthereumFeeCollector,
     UpgradeBeacon__factory as UngradeBeaconFactory,
@@ -32,7 +32,7 @@ describe(`Sending fees through PayableProxy`, function () {
     const operatorSigner = provider.getSigner(operator.address);
     const userSigner = provider.getSigner(user.address);
 
-    let wboaContract: WBOA9;
+    let wboaContract: WETH;
     let feeCollectorContract: EthereumFeeCollector;
     let beaconContract: UpgradeBeacon;
     let proxyContract: PayableProxy;
@@ -43,10 +43,10 @@ describe(`Sending fees through PayableProxy`, function () {
         console.log("user:", user.address);
 
         // deploy WBOA contract
-        const wboaFactory = await ethers.getContractFactory("WBOA9");
-        wboaContract = (await wboaFactory.connect(admin).deploy()) as WBOA9;
+        const wboaFactory = await ethers.getContractFactory("WETH");
+        wboaContract = (await wboaFactory.connect(admin).deploy()) as WETH;
         await wboaContract.deployed();
-        console.log("WBOA9:", wboaContract.address);
+        console.log("WETH:", wboaContract.address);
 
         // deploy EthereumFeeCollector contract
         const feeCollectorFactory = await ethers.getContractFactory("EthereumFeeCollector");

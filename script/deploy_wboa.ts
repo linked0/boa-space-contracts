@@ -6,16 +6,16 @@ import { WBOA9 } from "../typechain-types";
 import { delay } from "@nomiclabs/hardhat-etherscan/dist/src/etherscan/EtherscanService";
 
 async function main() {
-    const WBOAFactory = await ethers.getContractFactory("WBOA9");
+    const WBOA9Factory = await ethers.getContractFactory("WBOA9");
     const provider = ethers.provider;
 
     const admin = new Wallet(process.env.ADMIN_KEY || "");
     const adminSigner = new NonceManager(new GasPriceManager(provider.getSigner(admin.address)));
 
-    const WBOA = await WBOAFactory.connect(adminSigner).deploy();
-    await WBOA.deployed();
+    const WBOA9 = await WBOA9Factory.connect(adminSigner).deploy();
+    await WBOA9.deployed();
 
-    console.log("WBOA deployed:", WBOA.address);
+    console.log("WBOA9 deployed:", WBOA9.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

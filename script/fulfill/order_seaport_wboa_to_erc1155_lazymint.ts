@@ -37,7 +37,7 @@ async function main() {
     const SeaportFacotry = await ethers.getContractFactory("Seaport");
     const StorefrontFactory = await ethers.getContractFactory("SharedStorefrontLazyMintAdapter");
     const AssetContractFactory = await ethers.getContractFactory("AssetContractShared");
-    const WBOAFactory = await ethers.getContractFactory("WBOA9");
+    const WBOAFactory = await ethers.getContractFactory("WETH");
     const provider = ethers.provider;
 
     const admin = new Wallet(process.env.ADMIN_KEY || "");

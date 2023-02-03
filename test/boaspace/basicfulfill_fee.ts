@@ -17,8 +17,8 @@ import type {
     Seaport__factory as SeaportFactory,
     SharedStorefrontLazyMintAdapter,
     SharedStorefrontLazyMintAdapter__factory as SharedStorefrontLazyMintAdapterFactory,
-    WBOA9__factory as WBOA9Factory,
-    WBOA9,
+    WETH__factory as WETHFactory,
+    WETH,
 } from "../../typechain-types";
 import { createOrder, setChainId, setSeaport } from "../../utils/CommonFunctions";
 import { createTokenId } from "../../utils/ParseTokenID";
@@ -47,7 +47,7 @@ describe(`Fulfilling a basic order offering NFT and getting BOA(BOASPACE)`, func
     let marketplace: Seaport;
     let lazymintAdapter: SharedStorefrontLazyMintAdapter;
 
-    let wboaContract: WBOA9;
+    let wboaContract: WETH;
     let feeCollectorContract: EthereumFeeCollector;
     let beaconContract: UpgradeBeacon;
     let proxyContract: PayableProxy;
@@ -120,10 +120,10 @@ describe(`Fulfilling a basic order offering NFT and getting BOA(BOASPACE)`, func
         await assetToken.connect(adminSigner).addSharedProxyAddress(lazymintAdapter.address);
 
         // deploy WBOA contract
-        const wboaFactory = await ethers.getContractFactory("WBOA9");
-        wboaContract = (await wboaFactory.connect(admin).deploy()) as WBOA9;
+        const wboaFactory = await ethers.getContractFactory("WETH");
+        wboaContract = (await wboaFactory.connect(admin).deploy()) as WETH;
         await wboaContract.deployed();
-        console.log("WBOA9:", wboaContract.address);
+        console.log("WETH:", wboaContract.address);
 
         // deploy EthereumFeeCollector contract
         const feeCollectorFactory = await ethers.getContractFactory("EthereumFeeCollector");
