@@ -23,7 +23,7 @@ import type {
     OfferItem,
     OrderComponents,
 } from "../test/utils/types";
-import type { AssetContractShared, Seaport, TestZone, WBOA9 } from "../typechain-types";
+import type { AssetContractShared, Seaport, TestZone, WETH } from "../typechain-types";
 import type { BigNumberish, ContractReceipt, ContractTransaction, Wallet } from "ethers";
 
 const { orderType } = require("../eip-712-types/order");
@@ -32,12 +32,12 @@ const { parseEther, keccak256 } = ethers.utils;
 const provider = ethers.provider;
 let marketplaceContract: Seaport;
 let assetToken: AssetContractShared;
-let wboaToken: WBOA9;
+let wboaToken: WETH;
 
 export const setContracts = (
     _seaportContrct: Seaport,
     _assetContrct: AssetContractShared,
-    _wboaContrct?: WBOA9 | undefined
+    _wboaContrct?: WETH | undefined
 ) => {
     marketplaceContract = _seaportContrct;
     assetToken = _assetContrct;
@@ -50,7 +50,7 @@ export const setSeaport = (seaportContrct: Seaport) => {
     marketplaceContract = seaportContrct;
 };
 
-export const setWBoaContract = (_wboaContrct: WBOA9) => {
+export const setWBoaContract = (_wboaContrct: WETH) => {
     wboaToken = _wboaContrct;
 };
 
@@ -68,7 +68,7 @@ export const setChainId = async (_chainId: number) => {
 export const depositToWBoa = async (depositer: string, totalDeposit: BigNumber) => {
     const depositSigner = new NonceManager(new GasPriceManager(provider.getSigner(depositer)));
 
-    const amount = await wboaToken.getBalance(depositer);
+    const amount = await wboaToken.balanceOf(depositer);
 
     if (totalDeposit.gt(amount)) {
         await wboaToken.connect(depositSigner).deposit({ value: totalDeposit.sub(amount) });
@@ -91,7 +91,7 @@ export const displayNFTBalance = async (msg: string, tokenId: BigNumber, owner: 
 };
 
 export const displayWBoaBalance = async (msg: string, owner: string) => {
-    const amount = await wboaToken.getBalance(owner);
+    const amount = await wboaToken.balanceOf(owner);
     const intPartStr = amount.div(BigNumber.from(10.0).pow(18)).toString();
     if (intPartStr === "0") {
         console.log("%s WBOA balance: 0.%s", msg, amount.toString().padStart(18, "0"));

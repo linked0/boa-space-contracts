@@ -91,10 +91,18 @@ const config: HardhatUserConfig = {
           },
         },
       },
+      "contracts/wboa/WETH.sol": {
+        version: "0.6.6",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1000000,
+          },
+        },
+      },
       "contracts/wboa/WBOA9.sol": {
         version: "0.4.18",
         settings: {
-          viaIR: true,
           optimizer: {
             enabled: true,
             runs: 1000000,

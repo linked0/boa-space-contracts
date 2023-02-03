@@ -2,8 +2,8 @@ import { expect } from "chai";
 import { ethers, network, waffle } from "hardhat";
 import { faucet } from "../utils/faucet";
 import type {
-    WBOA9__factory as WBOA9Factory,
-    WBOA9,
+    WETH__factory as WETHFactory,
+    WETH,
     EthereumFeeCollector__factory as EthereumFeeCollectorFactory,
     EthereumFeeCollector,
     UpgradeBeacon__factory as UngradeBeaconFactory,
@@ -30,7 +30,7 @@ describe(`Initialize PayableProxy, UpgradeBeacon, EthereumFeeCollector`, functio
     const ownerSigner = provider.getSigner(owner.address);
 
     let twoStepContract: TwoStepOwnable;
-    let wboaContract: WBOA9;
+    let wboaContract: WETH;
     let feeCollectorContract: EthereumFeeCollector;
     let beaconContract: UpgradeBeacon;
     let proxyContract: PayableProxy;
@@ -46,10 +46,10 @@ describe(`Initialize PayableProxy, UpgradeBeacon, EthereumFeeCollector`, functio
         console.log("owner balance: ", await provider.getBalance(owner.address));
 
         // deploy WBOA contract
-        const wboaFactory = await ethers.getContractFactory("WBOA9");
-        wboaContract = (await wboaFactory.connect(admin).deploy()) as WBOA9;
+        const wboaFactory = await ethers.getContractFactory("WETH");
+        wboaContract = (await wboaFactory.connect(admin).deploy()) as WETH;
         await wboaContract.deployed();
-        console.log("WBOA9:", wboaContract.address);
+        console.log("WETH:", wboaContract.address);
     });
 
     this.beforeEach(async () => {

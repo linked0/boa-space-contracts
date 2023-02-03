@@ -22,7 +22,7 @@ const provider = ethers.provider;
 
 async function main() {
     const AssetContractFactory = await ethers.getContractFactory("AssetContractShared");
-    const WBOAFactory = await ethers.getContractFactory("WBOA9");
+    const WBOAFactory = await ethers.getContractFactory("WETH");
 
     const creator = new Wallet(process.env.FINPL_NFT_CREATOR_KEY || "");
     const nftBuyer = new Wallet(process.env.ORDER_NFT_BUYER_KEY || "");
@@ -38,12 +38,12 @@ async function main() {
     console.log("====== NFT seller");
     console.log("address\t:", nftSeller.address);
     console.log("BOA\t:", (await provider.getBalance(nftSeller.address)).toString());
-    console.log("WBOA\t:", (await wboaToken.getBalance(nftSeller.address)).toString());
+    console.log("WBOA\t:", (await wboaToken.balanceOf(nftSeller.address)).toString());
     console.log("NFT amount :", (await assetToken.balanceOf(nftSeller.address, tokenId)).toString());
     console.log("====== NFT buyer");
     console.log("address\t:", nftBuyer.address);
     console.log("BOA\t:", (await provider.getBalance(nftBuyer.address)).toString());
-    console.log("WBOA\t:", (await wboaToken.getBalance(nftBuyer.address)).toString());
+    console.log("WBOA\t:", (await wboaToken.balanceOf(nftBuyer.address)).toString());
     console.log("NFT amount :", (await assetToken.balanceOf(nftBuyer.address, tokenId)).toString());
 }
 

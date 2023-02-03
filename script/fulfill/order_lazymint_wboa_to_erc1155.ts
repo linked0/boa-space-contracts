@@ -36,7 +36,7 @@ async function main() {
     const StorefrontFactory = await ethers.getContractFactory("SharedStorefrontLazyMintAdapter");
     const ConduitControlFactory = await ethers.getContractFactory("ConduitController");
     const AssetContractFactory = await ethers.getContractFactory("AssetContractShared");
-    const WBOAFactory = await ethers.getContractFactory("WBOA9");
+    const WBOAFactory = await ethers.getContractFactory("WETH");
 
     const marketplace = await SeaportFactory.attach(process.env.SEAPORT_ADDRESS || "");
     const storefront = await StorefrontFactory.attach(process.env.LAZY_MINT_ADAPTER_ADDRESS || "");
