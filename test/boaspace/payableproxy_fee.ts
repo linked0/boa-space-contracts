@@ -73,20 +73,14 @@ describe(`Sending fees through PayableProxy`, function () {
         await proxyContract.connect(admin).initialize(owner.address);
 
         // add wallet to withdraw the accumulated fees
-        const encodedData = feeCollectorContract.interface.encodeFunctionData(
-          "addWithdrawAddress",
-          [
-            feeAdmin.address
-          ]
-        );
+        const encodedData = feeCollectorContract.interface.encodeFunctionData("addWithdrawAddress", [feeAdmin.address]);
         await ownerSigner.sendTransaction({
             to: proxyContract.address,
-            data: encodedData
+            data: encodedData,
         });
     });
 
-    this.beforeEach(async () => {
-    });
+    this.beforeEach(async () => {});
 
     it("Withdraw native tokens from the fee collector", async () => {
         const amount = ethers.utils.parseEther("100");
@@ -112,44 +106,40 @@ describe(`Sending fees through PayableProxy`, function () {
         await wboaContract.connect(user).transferFrom(user.address, proxyContract.address, amount);
 
         // withdraw fees to the fee admin
-        const encodedData = feeCollectorContract.interface.encodeFunctionData(
-            "unwrapAndWithdraw",
-            [
-              feeAdmin.address.toString(),
-              wboaContract.address,
-              amount
-            ]
-          );
+        const encodedData = feeCollectorContract.interface.encodeFunctionData("unwrapAndWithdraw", [
+            feeAdmin.address.toString(),
+            wboaContract.address,
+            amount,
+        ]);
         await ownerSigner.sendTransaction({
             to: proxyContract.address,
-            data: encodedData
+            data: encodedData,
         });
 
         expect(await provider.getBalance(feeAdmin.address)).to.be.equal(prevBalance.add(amount));
     });
 
     it("Withdraw WBOA tokens with an operator not registered", async () => {
-      const amount = ethers.utils.parseEther("100");
-      const prevBalance = await provider.getBalance(feeAdmin.address);
+        const amount = ethers.utils.parseEther("100");
+        const prevBalance = await provider.getBalance(feeAdmin.address);
 
-      // deposit from user to WBOA
-      await wboaContract.connect(user).deposit({ value: amount });
+        // deposit from user to WBOA
+        await wboaContract.connect(user).deposit({ value: amount });
 
-      // send native tokens to the fee collector throuhh proxyContract
-      await wboaContract.connect(user).transferFrom(user.address, proxyContract.address, amount);
+        // send native tokens to the fee collector throuhh proxyContract
+        await wboaContract.connect(user).transferFrom(user.address, proxyContract.address, amount);
 
-      // try to withdraw fees to the fee admin
-      const encodedData = feeCollectorContract.interface.encodeFunctionData(
-          "unwrapAndWithdraw",
-          [
+        // try to withdraw fees to the fee admin
+        const encodedData = feeCollectorContract.interface.encodeFunctionData("unwrapAndWithdraw", [
             feeAdmin.address.toString(),
             wboaContract.address,
-            amount
-          ]
-        );
-      await expect(operatorSigner.sendTransaction({
-          to: proxyContract.address,
-          data: encodedData
-      })).to.be.revertedWith("InvalidOperator");
-  });
+            amount,
+        ]);
+        await expect(
+            operatorSigner.sendTransaction({
+                to: proxyContract.address,
+                data: encodedData,
+            })
+        ).to.be.revertedWith("InvalidOperator");
+    });
 });

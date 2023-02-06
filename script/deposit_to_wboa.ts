@@ -11,9 +11,7 @@ async function main() {
 
     const depositer = new Wallet(process.env.WBOA_DEPOSITER || "");
     const depositAmount = ethers.utils.parseEther(process.env.WBOA_DEPOSIT_AMOUNT || "0");
-    const depositSigner = new NonceManager(
-        new GasPriceManager(provider.getSigner(depositer.address))
-    );
+    const depositSigner = new NonceManager(new GasPriceManager(provider.getSigner(depositer.address)));
 
     const wboaToken = await WBOAFactory.attach(process.env.WBOA_ADDRESS);
     await wboaToken.connect(depositSigner).deposit({ value: depositAmount });
