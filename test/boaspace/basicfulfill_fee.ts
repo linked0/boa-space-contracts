@@ -106,11 +106,9 @@ describe(`Fulfilling a basic order offering NFT and getting BOA(BOASPACE)`, func
 
         // Deploy SharedStorefrontLazyMintAdapter contract
         const lazymintAdapterFactory = await ethers.getContractFactory("SharedStorefrontLazyMintAdapter");
-        lazymintAdapter = await lazymintAdapterFactory.connect(admin).deploy(
-            marketplace.address,
-            conduitAddress,
-            assetToken.address
-        );
+        lazymintAdapter = await lazymintAdapterFactory
+            .connect(admin)
+            .deploy(marketplace.address, conduitAddress, assetToken.address);
         await lazymintAdapter.deployed();
         console.log("SharedStorefrontLazyMintAdapter:", lazymintAdapter.address);
 
@@ -137,28 +135,23 @@ describe(`Fulfilling a basic order offering NFT and getting BOA(BOASPACE)`, func
         await beaconContract.deployed();
         console.log("UpgradeBeacon:", beaconContract.address);
 
+        // initialize the UpgradeBeacon contract
+        await beaconContract.connect(admin).initialize(owner.address, feeCollectorContract.address);
+
         // deploy PayableProxy contract
         const proxyFactory = await ethers.getContractFactory("PayableProxy");
         proxyContract = (await proxyFactory.connect(admin).deploy(beaconContract.address)) as PayableProxy;
         await proxyContract.deployed();
         console.log("PayableProxy:", proxyContract.address);
 
-        // initialize the UpgradeBeacon contract
-        await beaconContract.connect(admin).initialize(owner.address, feeCollectorContract.address);
-
         // initialize the PayableProxy
         await proxyContract.connect(admin).initialize(owner.address);
 
         // add wallet to withdraw the accumulated fees
-        const encodedData = feeCollectorContract.interface.encodeFunctionData(
-            "addWithdrawAddress",
-            [
-              feeAdmin.address
-            ]
-          );
+        const encodedData = feeCollectorContract.interface.encodeFunctionData("addWithdrawAddress", [feeAdmin.address]);
         await ownerSigner.sendTransaction({
             to: proxyContract.address,
-            data: encodedData
+            data: encodedData,
         });
 
         // deposit from user to WBOA
@@ -255,9 +248,7 @@ describe(`Fulfilling a basic order offering NFT and getting BOA(BOASPACE)`, func
         expect(await assetToken.balanceOf(fulfiller.address, tokenId)).equal(fulfillerNFTs.sub(1));
 
         // the offerer should have balance off 100 BOA from the original balance
-        expect(await wboaContract.balanceOf(offerer.address)).equal(
-            offerWBoa.sub(tokenPriceAmount)
-        );
+        expect(await wboaContract.balanceOf(offerer.address)).equal(offerWBoa.sub(tokenPriceAmount));
 
         // the fulfiller should have 97.5% of the price more than
         // the original balance.
@@ -272,22 +263,17 @@ describe(`Fulfilling a basic order offering NFT and getting BOA(BOASPACE)`, func
         );
 
         // withdraw fees to feeAdmin
-        const encodedData = feeCollectorContract.interface.encodeFunctionData(
-            "unwrapAndWithdraw",
-            [
-              feeAdmin.address,
-              wboaContract.address,
-              feeAmount
-            ]
-          );
+        const encodedData = feeCollectorContract.interface.encodeFunctionData("unwrapAndWithdraw", [
+            feeAdmin.address,
+            wboaContract.address,
+            feeAmount,
+        ]);
         const result = await ownerSigner.sendTransaction({
             to: proxyContract.address,
-            data: encodedData
+            data: encodedData,
         });
 
         // the fee admin has got BOAs as much as the fee
-        expect(await provider.getBalance(feeAdmin.address)).equal(
-            feeAdminBalance.add(feeAmount)
-        );
+        expect(await provider.getBalance(feeAdmin.address)).equal(feeAdminBalance.add(feeAmount));
     });
 });

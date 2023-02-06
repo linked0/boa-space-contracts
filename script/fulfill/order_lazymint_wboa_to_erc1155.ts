@@ -20,7 +20,8 @@ import {
     displayNFTBalance,
     displayWBoaBalance,
     setAssetContract,
-    setChainId, setContracts,
+    setChainId,
+    setContracts,
     setSeaport,
     setWBoaContract,
 } from "../../utils/CommonFunctions";

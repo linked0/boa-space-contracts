@@ -80,12 +80,16 @@ describe(`Initialize PayableProxy, UpgradeBeacon, BoaFeeCollector`, function () 
         expect(await beaconContract.implementation()).to.equal(feeCollectorContract.address);
 
         // trying to initialize again with admin account
-        await expect(beaconContract.connect(admin).initialize(admin.address, feeCollectorContract.address))
-            .to.be.revertedWith("Initialize must originate from an approved deployer, and the implementation must not be set.");
+        await expect(
+            beaconContract.connect(admin).initialize(admin.address, feeCollectorContract.address)
+        ).to.be.revertedWith(
+            "Initialize must originate from an approved deployer, and the implementation must not be set."
+        );
 
         // trying to upgrade to new implementation with admin account
-        await expect(beaconContract.connect(admin).upgradeTo(feeCollectorContract.address))
-            .to.be.revertedWith("CallerIsNotOwner");
+        await expect(beaconContract.connect(admin).upgradeTo(feeCollectorContract.address)).to.be.revertedWith(
+            "CallerIsNotOwner"
+        );
 
         // trying to upgrade to new implementation with owner account
         await expect(beaconContract.connect(owner).upgradeTo(feeCollectorContract.address));
@@ -98,8 +102,9 @@ describe(`Initialize PayableProxy, UpgradeBeacon, BoaFeeCollector`, function () 
         expect(await feeCollectorContract.owner()).to.equal(owner.address);
 
         // try to assign operator with admin account
-        await expect(feeCollectorContract.connect(admin).assignOperator(operator.address))
-            .to.be.revertedWith("CallerIsNotOwner");
+        await expect(feeCollectorContract.connect(admin).assignOperator(operator.address)).to.be.revertedWith(
+            "CallerIsNotOwner"
+        );
 
         // assign operator with owner account
         await expect(feeCollectorContract.connect(owner).assignOperator(operator.address));
@@ -113,23 +118,20 @@ describe(`Initialize PayableProxy, UpgradeBeacon, BoaFeeCollector`, function () 
         await proxyContract.connect(admin).initialize(owner.address);
 
         // FAIL: try to assign operator with admin account
-        await expect(feeCollectorContract.connect(admin).assignOperator(operator.address))
-            .to.be.revertedWith("CallerIsNotOwner");
+        await expect(feeCollectorContract.connect(admin).assignOperator(operator.address)).to.be.revertedWith(
+            "CallerIsNotOwner"
+        );
 
         // FAIL: try to assign operator with owner account
-        await expect(feeCollectorContract.connect(owner).assignOperator(operator.address))
-            .to.be.revertedWith("CallerIsNotOwner");
+        await expect(feeCollectorContract.connect(owner).assignOperator(operator.address)).to.be.revertedWith(
+            "CallerIsNotOwner"
+        );
 
         // assign operator with owner account through PayableProxy
-        const encodedData = feeCollectorContract.interface.encodeFunctionData(
-            "assignOperator",
-            [
-                operator.address
-            ]
-        );
+        const encodedData = feeCollectorContract.interface.encodeFunctionData("assignOperator", [operator.address]);
         await ownerSigner.sendTransaction({
             to: proxyContract.address,
-            data: encodedData
-        })
+            data: encodedData,
+        });
     });
 });
