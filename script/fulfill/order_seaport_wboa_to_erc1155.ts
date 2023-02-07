@@ -23,6 +23,7 @@ import type { ConsiderationItem, OfferItem } from "../../test/utils/types";
 const { parseEther, keccak256 } = ethers.utils;
 
 const ZeroAddress = "0x0000000000000000000000000000000000000000";
+const MAX_INT = BigNumber.from("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
 
 async function main() {
     const SeaportFactory = await ethers.getContractFactory("Seaport");
@@ -56,7 +57,7 @@ async function main() {
 
     // approve WBOAs of seller to the Seaport
     const tokenPriceAmount = ethers.utils.parseEther("0.1");
-    await wboaToken.connect(nftBuyerSigner).approve(marketplace.address, tokenPriceAmount);
+    await wboaToken.connect(nftBuyerSigner).approve(marketplace.address, MAX_INT);
 
     // Current status of seller, buyer, and nft
     await displayNFTBalance("Seller", tokenId, nftSeller.address);
