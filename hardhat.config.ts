@@ -129,6 +129,7 @@ const config: HardhatUserConfig = {
         process.env.FINPL_NFT_CREATOR_KEY ?? "",
         process.env.FEE_COLLECTOR_OWNER_KEY ?? "",
         process.env.FEE_TEST_TRANSFER_KEY ?? "",
+        process.env.WBOA_DEPOSITER ?? "",
       ],
     },
     testnet: {
@@ -145,6 +146,7 @@ const config: HardhatUserConfig = {
         process.env.FINPL_NFT_CREATOR_KEY ?? "",
         process.env.FEE_COLLECTOR_OWNER_KEY ?? "",
         process.env.FEE_TEST_TRANSFER_KEY ?? "",
+        process.env.WBOA_DEPOSITER ?? "",
       ],
     },
     goerli: {
@@ -161,6 +163,7 @@ const config: HardhatUserConfig = {
         process.env.FINPL_NFT_CREATOR_KEY ?? "",
         process.env.FEE_COLLECTOR_OWNER_KEY ?? "",
         process.env.FEE_TEST_TRANSFER_KEY ?? "",
+        process.env.WBOA_DEPOSITER ?? "",
       ],
     },
     localnet: {
@@ -177,6 +180,7 @@ const config: HardhatUserConfig = {
         process.env.FINPL_NFT_CREATOR_KEY ?? "",
         process.env.FEE_COLLECTOR_OWNER_KEY ?? "",
         process.env.FEE_TEST_TRANSFER_KEY ?? "",
+        process.env.WBOA_DEPOSITER ?? "",
       ],
     },
   },

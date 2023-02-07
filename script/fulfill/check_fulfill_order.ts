@@ -24,6 +24,8 @@ async function main() {
     const AssetContractFactory = await ethers.getContractFactory("AssetContractShared");
     const WBOAFactory = await ethers.getContractFactory("WETH");
 
+    const proxyAddress = process.env.PAYABLE_PROXY_ADDRESS;
+    const feeWithdrawAddress = process.env.FEE_WITHDRAW_ADDRESS;
     const creator = new Wallet(process.env.FINPL_NFT_CREATOR_KEY || "");
     const nftBuyer = new Wallet(process.env.ORDER_NFT_BUYER_KEY || "");
     const nftSeller = new Wallet(process.env.ORDER_NFT_SELLER_KEY || "");
@@ -45,6 +47,12 @@ async function main() {
     console.log("BOA\t:", (await provider.getBalance(nftBuyer.address)).toString());
     console.log("WBOA\t:", (await wboaToken.balanceOf(nftBuyer.address)).toString());
     console.log("NFT amount :", (await assetToken.balanceOf(nftBuyer.address, tokenId)).toString());
+    console.log("====== PayableProxy Balances (%s)", proxyAddress);
+    console.log("BOA\t:", (await provider.getBalance(proxyAddress)).toString());
+    console.log("WBOA\t:", (await wboaToken.balanceOf(proxyAddress)).toString());
+    console.log("====== Fee Withdraw Address Balances (%s)", feeWithdrawAddress);
+    console.log("BOA\t:", (await provider.getBalance(feeWithdrawAddress)).toString());
+    console.log("WBOA\t:", (await wboaToken.balanceOf(feeWithdrawAddress)).toString());
 }
 
 // We recommend this pattern to be able to use async/await everywhere
