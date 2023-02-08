@@ -100,6 +100,26 @@ export const displayWBoaBalance = async (msg: string, owner: string) => {
     }
 };
 
+export const simpleBoaBalance = async (owner: string) => {
+    const amount = await provider.getBalance(owner);
+    const intPartStr = amount.div(BigNumber.from(10.0).pow(18)).toString();
+    if (intPartStr === "0") {
+        console.log("BOA: 0.%s", amount.toString().padStart(18, "0"));
+    } else {
+        console.log("BOA: %s.%s", intPartStr, amount.toString().slice(intPartStr.length));
+    }
+};
+
+export const simpleWBoaBalance = async (owner: string) => {
+    const amount = await wboaToken.balanceOf(owner);
+    const intPartStr = amount.div(BigNumber.from(10.0).pow(18)).toString();
+    if (intPartStr === "0") {
+        console.log("WBOA: 0.%s", amount.toString().padStart(18, "0"));
+    } else {
+        console.log("WBOA: %s.%s", intPartStr, amount.toString().slice(intPartStr.length));
+    }
+};
+
 export const withBalanceChecks = async (
     ordersArray: AdvancedOrder[], // TODO: include order statuses to account for partial fills
     additionalPayouts: 0 | BigNumber,
