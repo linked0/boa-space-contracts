@@ -109,6 +109,15 @@ const config: HardhatUserConfig = {
           },
         },
       },
+      "contracts/gravatar/Gravity.sol": {
+        version: "0.4.26",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1000000,
+          },
+        },
+      },
     },
   },
   networks: {
