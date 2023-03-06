@@ -30,9 +30,6 @@ async function main() {
 
     setContracts(marketplace, assetToken);
 
-    // set the shared proxy of assetToken to SharedStorefront
-    await assetToken.connect(adminSigner).addSharedProxyAddress(storefront.address);
-
     // TODO: Make utility functions creating offer and consideration
 
     // NFT seller creates an order that has an NFT token that he owns

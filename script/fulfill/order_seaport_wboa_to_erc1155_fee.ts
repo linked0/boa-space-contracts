@@ -45,9 +45,6 @@ async function main() {
 
     setContracts(marketplace, assetToken, wboaToken);
 
-    // set the shared proxy of assetToken to SharedStorefront
-    await assetToken.connect(adminSigner).addSharedProxyAddress(storefront.address);
-
     // approve WBOAs of seller to the Seaport
     const tokenPriceAmount = ethers.utils.parseEther("10");
     await wboaToken.connect(nftBuyerSigner).approve(marketplace.address, MAX_INT);
