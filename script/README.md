@@ -136,6 +136,13 @@ You should set the deployed address of the `SharedStorefrontLazymintAdapter` con
 LAZY_MINT_ADAPTER_ADDRESS=0xE11FDE48B267C0d4c56e38E7c7868aE5aE2C59Dd
 ```
 
+### Setting the shared proxy of AssetContractShared
+We must set the `SharedStorefrontLazyMintAdapter` contract as a shared proxy in order to make the contract have the role of transferring NFT tokens.
+```
+npx hardhat run script/add_shared_proxy.ts --network testnet
+```
+
+
 # Minting AssetContractShared NFT Tokens
 
 ### Set information for minting
@@ -183,12 +190,6 @@ creator: 0xAcb913db781a46611fAa04Ff6Cb9A370df069eed
 token index: 94
 max supply: 100
 balance of creator: 100
-```
-
-### Setting the shared proxy of AssetContractShared
-The deployer that is represented as `ADMIN_KEY` in .env file should get the role of the shared proxy for some scripts like `transfer_batch.ts` and `transfer_buyer.ts`. So you should run this script before transferring `AssetContractShared` NFT tokens. 
-```
-npx hardhat run script/finpl/add_shared_proxy.ts --network testnet
 ```
 
 # Transfer of AssetContractShared Tokens with Seaport
