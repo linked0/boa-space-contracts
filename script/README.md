@@ -1,4 +1,6 @@
 # Contents
+- [Information for Contracts and NFTs](#information-for-contracts-and-nfts)
+- [Notes](#notes)
 - [Install node modules](#install-node-modules)
 - [Deployment of contracts](#deployment-of-contracts)
   - [Deploying ConduitController contract](#deploying-conduitcontraoller-contract)
@@ -23,6 +25,39 @@
   - [Fulfill only through the Seaport](#fulfill-only-through-the-seaport)
 
 All the description is for the [Bosagora TestNet](https://testnet.boascan.io).
+
+# Information for Contracts and NFTs
+### AssetContractShared contract address
+```
+Testnet: 0x2fddd0f488B767E8Dd42aE4E60f0685A2e15b1Fd
+Mainnet: 0xfC9f0cb32588433C160ad1E305027EAdc7bdbbE8
+```
+
+### Mainnet BOB's project
+```
+Minted at 2022.12.19 16:30 KST
+Contract: 0xfC9f0cb32588433C160ad1E305027EAdc7bdbbE8
+Token Id: 43667820570476046280485912386194575442785224451789146690794321896035701489864
+Metadata: https://ipfs.io/ipfs/QmYsGGFqBLXCNtXfcmPeVwVxtgVjGQXDFHqZzRu6FxTYvc
+Creator: 0x608b1C4e78a37b459D7Cf51F9e31027DAa4f0C0B
+Token Index: 0
+Max Supply: 200
+```
+
+### Testnet BOB's project
+```
+TokenId: 29534064577826613153035026441167017977610697301918714276121482769509518409928
+Contract: 0x2fddd0f488B767E8Dd42aE4E60f0685A2e15b1Fd
+Metadata:  https://ipfs.io/ipfs/QmYsGGFqBLXCNtXfcmPeVwVxtgVjGQXDFHqZzRu6FxTYvc
+Creator: 0x414BB02bDe65Ba63c9A99709b388E30669Bf2De7
+Token Index: 131
+Max Supply: 200
+```
+
+# Notes
+문서화되어 있지 않으나 내용적으로 중요한 사항이므로 여기에 정리한다.
+* 거래 실행시 모든 수수료는 판매자에게 전달된 판매 대금에서 나오는 것이므로, 판매자의 ERC20 토큰에 대해서 `approve` 호출을 통해서 Seaport 컨트랙트가 권한을 가질 수 있도록 해야 한다.
+
 
 # Install node modules
 You should install node modules before running scripts and test codes
