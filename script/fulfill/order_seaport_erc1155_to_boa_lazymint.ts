@@ -47,9 +47,6 @@ async function main() {
 
     setContracts(marketplace, assetToken);
 
-    // set the shared proxy of assetToken to SharedStorefront
-    await assetToken.connect(adminSigner).addSharedProxyAddress(storefront.address);
-
     // Current status of seller, buyer, and nft
     await displayNFTBalance("Seller", newTokenId, nftSeller.address);
     await displayBoaBalance("Buyer", nftBuyer.address);

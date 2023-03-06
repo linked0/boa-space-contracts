@@ -63,9 +63,6 @@ async function main() {
     const { conduit: conduitAddress, exists } = await conduitController.getConduit(conduitKey);
     console.log("conduit address: %s for the conduit key: %s", conduitAddress, conduitKey);
 
-    // set the shared proxy of assetToken to SharedStorefront
-    await assetToken.connect(adminSigner).addSharedProxyAddress(storefront.address);
-
     // approve WBOAs of seller to the Conduit
     let selerAmountTotal = await provider.getBalance(nftBuyer.address);
     await wboaToken.connect(nftBuyerSigner).approve(conduitAddress, selerAmountTotal);

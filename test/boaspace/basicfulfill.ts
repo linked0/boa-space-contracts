@@ -90,9 +90,6 @@ describe(`Fulfilling a basic order offering NFT and getting BOA(BOASPACE)`, func
         console.log("Marketplace:", marketplace.address);
 
         setSeaport(marketplace);
-
-        // approve to the marketpalce
-        // await assetToken.connect(adminSigner).addSharedProxyAddress(marketplace.address);
     });
 
     it("Mint a AssetContractShared token", async () => {

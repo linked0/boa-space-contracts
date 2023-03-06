@@ -30,9 +30,6 @@ async function main() {
     const tokenId = BigNumber.from(process.env.FINPL_NFT_LAST_COMBINE_TOKEN_ID || "");
     setContracts(marketplaceContract, sharedAsset);
 
-    // approve to the marketplace
-    // await sharedAsset.connect(adminSigner).addSharedProxyAddress(marketplaceContract.address);
-
     await sharedAsset.connect(nftSellerSigner).setApprovalForAll(marketplaceContract.address, true);
     console.log("SetApprovalForAll called");
 

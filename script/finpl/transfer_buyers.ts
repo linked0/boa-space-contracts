@@ -9,10 +9,9 @@ async function main() {
     const provider = ethers.provider;
 
     const creator = new Wallet(process.env.FINPL_NFT_CREATOR_KEY || "");
-    const proxy = new Wallet(process.env.SHARED_PROXY_KEY || "");
-    const proxySigner = new NonceManager(new GasPriceManager(provider.getSigner(proxy.address)));
+    const creatorSigner = new NonceManager(new GasPriceManager(provider.getSigner(creator.address)));
     const assetContract = await AssetContractFactory.attach(process.env.ASSET_CONTRACT_SHARED_ADDRESS || "");
-    const proxyContract = await assetContract.connect(proxySigner);
+    const creatorContract = await assetContract.connect(creatorSigner);
 
     const tokenIds = process.env.MANY_BUYER_COMBINE_TOKEN_IDS.split(",");
     let transferIds: BigNumber[] = [];
@@ -48,7 +47,7 @@ async function main() {
 
     for (let i = 0; i < transferIds.length; i++) {
         console.log(transferIds[i].toHexString());
-        await proxyContract.safeTransferFrom(
+        await creatorContract.safeTransferFrom(
             creator.address,
             transferBuyers[i],
             transferIds[i],
