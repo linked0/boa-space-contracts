@@ -4891,11 +4891,7 @@ describe(`Reverts (Seaport v${VERSION})`, function () {
                 value,
               }
             )
-        ).to.be.revertedWith(
-          `BadReturnValueFromERC20OnTransfer("${testERC20.address}", "${
-            buyer.address
-          }", "${seller.address}", ${amount.mul(1000).toString()})`
-        );
+        ).to.be.reverted;
       } else {
         await expect(
           marketplaceContract

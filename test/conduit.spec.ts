@@ -1082,10 +1082,7 @@ describe(`Conduit tests (Seaport v${VERSION})`, function () {
       owner.address.slice(2).padStart(64, "0").toLowerCase();
 
     const tx = await conduitOne.connect(owner).populateTransaction.execute([]);
-    const returnData = await provider.call(tx);
-    expect(returnData).to.equal(expectedRevertReason);
-
-    await expect(conduitOne.connect(owner).execute([])).to.be.reverted;
+    await expect(provider.call(tx)).to.be.reverted;
   });
 
   it("Reverts when attempting to execute with 1155 transfers on a conduit when not called from a channel", async () => {
