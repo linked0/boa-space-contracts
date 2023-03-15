@@ -88,7 +88,7 @@ CONDUIT_CONTROLLER_ADDRESS=0xFB15f7cB1E06544A791DbEd6AfdB9C705bF5eF60
 
 We use a default conduit in the BosSpace, so we need to create the conduit which should be set to the `SharedStorefrontLazymintAdapter` contract.
 
-Before creating a default conduit, you should check the conduit key in the `.env` file as follows. Our default conduit key is always the same as the following value.
+Before creating a default conduit, you should check the conduit key in the `.env` file as follows. Our default conduit key is always the same as the following value. The following conduit key should be used in the Agora mainnet.
 ```
 CONDUIT_KEY=0xdedF18e2fdf26Ec8f889EfE4ec84D7206bDC431E000000000000000000000000
 ```
