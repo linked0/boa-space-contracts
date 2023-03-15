@@ -20,7 +20,7 @@ import type {
     WETH__factory as WETHFactory,
     WETH,
 } from "../../typechain-types";
-import { createOrder, setChainId, setSeaport } from "../../utils/CommonFunctions";
+import { createOrder, setSeaport } from "../../utils/CommonFunctions";
 import { createTokenId } from "../../utils/ParseTokenID";
 import { BigNumber, BigNumberish } from "ethers";
 import { getItemETH, toBN, toKey } from "../utils/encoding";
@@ -34,8 +34,6 @@ const ZeroAddress = "0x0000000000000000000000000000000000000000";
  */
 describe(`Fulfilling a basic order offering NFT and getting BOA(BOASPACE)`, function () {
     const { provider } = waffle;
-
-    setChainId(31337);
 
     const [admin, owner, feeAdmin, offerer, fulfiller, user] = provider.getWallets();
     const adminSigner = provider.getSigner(admin.address);

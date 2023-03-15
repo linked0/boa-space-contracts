@@ -13,7 +13,6 @@ import type {
     TwoStepOwnable__factory as TwoStepOwnableFactory,
     TwoStepOwnable,
 } from "../../typechain-types";
-import { setChainId } from "../../utils/CommonFunctions";
 
 const { parseEther } = ethers.utils;
 
@@ -22,8 +21,6 @@ const { parseEther } = ethers.utils;
  */
 describe(`Initialize PayableProxy, UpgradeBeacon, BoaFeeCollector`, function () {
     const { provider } = waffle;
-
-    setChainId(31337);
 
     const [admin, owner, operator] = provider.getWallets();
     const adminSigner = provider.getSigner(admin.address);
