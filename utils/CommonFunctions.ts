@@ -44,25 +44,33 @@ export const setContracts = (
     if (_wboaContrct !== undefined) {
         wboaToken = _wboaContrct;
     }
+    setChainId();
 };
 
 export const setSeaport = (seaportContrct: Seaport) => {
     marketplaceContract = seaportContrct;
+    setChainId();
 };
 
 export const setWBoaContract = (_wboaContrct: WETH) => {
     wboaToken = _wboaContrct;
+    setChainId();
 };
 
 export const setAssetContract = (_assetContrct: AssetContractShared) => {
     assetToken = _assetContrct;
+    setChainId();
 };
 
 // Default chainId is for the Bosagora testnet
 let chainId: number = 2019;
 
-export const setChainId = async (_chainId: number) => {
-    chainId = _chainId;
+export const setChainId = async () => {
+    provider.getNetwork().then((network) => {
+        chainId = network.chainId;
+    }).catch((error) => {
+        console.error("Error getting chain ID:", error);
+    });
 };
 
 export const depositToWBoa = async (depositer: string, totalDeposit: BigNumber) => {
@@ -111,7 +119,12 @@ export const simpleBoaBalance = async (owner: string) => {
 };
 
 export const simpleWBoaBalance = async (owner: string) => {
-    const amount = await wboaToken.balanceOf(owner);
+    let amount: BigNumber = BigNumber.from(0);
+    try {
+        amount = await wboaToken.balanceOf(owner);
+    }
+    catch (error) {
+    }
     const intPartStr = amount.div(BigNumber.from(10.0).pow(18)).toString();
     if (intPartStr === "0") {
         console.log("WBOA: 0.%s", amount.toString().padStart(18, "0"));
@@ -617,6 +630,7 @@ export const createOrder = async (
     conduitKey = constants.HashZero,
     extraCheap = false
 ) => {
+    console.log("offerer:", offerer.address);
     const counter = await marketplaceContract.getCounter(offerer.address);
 
     const salt = !extraCheap ? randomHex() : constants.HashZero;

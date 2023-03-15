@@ -20,7 +20,6 @@ import {
     displayNFTBalance,
     displayWBoaBalance,
     setAssetContract,
-    setChainId,
     setContracts,
     setSeaport,
     setWBoaContract,
