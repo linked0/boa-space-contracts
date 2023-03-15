@@ -1,153 +1,144 @@
 # Contents
-- [Information for Contracts and NFTs](#information-for-contracts-and-nfts)
-- [Notes](#notes)
-- [Install node modules](#install-node-modules)
 - [Deployment of contracts](#deployment-of-contracts)
-  - [Deploying ConduitController contract](#deploying-conduitcontraoller-contract)
+  - [Prerequisites](#prerequisites)
+  - [Deploying ConduitController contract](#deploying-conduitcontroller-contract)
   - [Creating Conduit](#creating-conduit)
   - [Deploying Seaport contract](#deploying-seaport-contract)
   - [Deploying AssetContractShared contract](#deploying-assetcontractshared-contract)
-  - [Deploying SharedStorefrontLazymintAdapter contract](#deploying-sharedstorefrontlazymintadapter-contract)
-- [Minting AssetContractShared NFT Tokens](#minting-assetcontractshared-nft-tokens)
-  - [Set information for minting](#set-information-for-minting)
-  - [Mint new NFT tokens](#mint-new-nft-tokens)
-  - [Check the information on the minted NFT token](#check-the-information-on-the-minted-nft-token)
+  - [Deploying SharedStorefrontLazyMintAdapter contract](#deploying-sharedstorefrontlazymintadapter-contract)
   - [Setting the shared proxy of AssetContractShared](#setting-the-shared-proxy-of-assetcontractshared)
-- [Transfer of AssetContractShared Tokens with Seaport](#transfer-of-assetcontractshared-tokens-with-seaport)
-  - [Prerequisites](#prerequisites)
+- [Minting AssetContractShared NFT Tokens](#minting-assetcontractshared-nft-tokens)
+- [Trading NFTs with the Seaport contract](#trading-nfts-with-the-seaport-contract)
+- [Notes](#notes)
+- [Trasnfer of AssetContractShared Tokens with Seaport](#transfer-of-assetcontractshared-tokens-with-seaport)
+  - [Prerequisites](#prerequisites-1)
   - [Fulfill through the Seaport and SharedStorefrontLazyMintAdapter without Conduit](#fulfill-through-the-seaport-and-sharedstorefrontlazymintadapter-without-conduit)
-    - [Offer NFT and receive BOA as consideration](#offer-nft-and-receive-boa-as-consideration)
-    - [Offer WBOA and receive NFT as consideration](#offer-wboa-and-receive-nft-as-consideration)
-    - [Offer WBOA and receive NFT that is lazily minted as consideration](#offer-wboa-and-receive-nft-that-is-lazily-minted-as-consideration)
   - [Fulfill through the Seaport, Conduit, and SharedStorefrontLazyMintAdapter](#fulfill-through-the-seaport-conduit-and-sharedstorefrontlazymintadapter)
-    - [Offer WBOA and receive NFT as consideration](#offer-wboa-and-receive-nft-as-consideration)
-    - [Offer WBOA and receive NFT that is lazily minted as consideration](#offer-wboa-and-receive-nft-that-is-lazily-minted-as-consideration-1)
   - [Fulfill only through the Seaport](#fulfill-only-through-the-seaport)
 
-All the description is for the [Bosagora TestNet](https://testnet.boascan.io).
-
-# Information for Contracts and NFTs
-### AssetContractShared contract address
-```
-Testnet: 0x2fddd0f488B767E8Dd42aE4E60f0685A2e15b1Fd
-Mainnet: 0xfC9f0cb32588433C160ad1E305027EAdc7bdbbE8
-```
-
-### Mainnet BOB's project
-```
-Minted at 2022.12.19 16:30 KST
-Contract: 0xfC9f0cb32588433C160ad1E305027EAdc7bdbbE8
-Token Id: 43667820570476046280485912386194575442785224451789146690794321896035701489864
-Metadata: https://ipfs.io/ipfs/QmYsGGFqBLXCNtXfcmPeVwVxtgVjGQXDFHqZzRu6FxTYvc
-Creator: 0x608b1C4e78a37b459D7Cf51F9e31027DAa4f0C0B
-Token Index: 0
-Max Supply: 200
-```
-
-### Testnet BOB's project
-```
-TokenId: 29534064577826613153035026441167017977610697301918714276121482769509518409928
-Contract: 0x2fddd0f488B767E8Dd42aE4E60f0685A2e15b1Fd
-Metadata:  https://ipfs.io/ipfs/QmYsGGFqBLXCNtXfcmPeVwVxtgVjGQXDFHqZzRu6FxTYvc
-Creator: 0x414BB02bDe65Ba63c9A99709b388E30669Bf2De7
-Token Index: 131
-Max Supply: 200
-```
-
-# Notes
-문서화되어 있지 않으나 내용적으로 중요한 사항이므로 여기에 정리한다.
-* 거래 실행시 모든 수수료는 판매자에게 전달된 판매 대금에서 나오는 것이므로, 판매자의 ERC20 토큰에 대해서 `approve` 호출을 통해서 Seaport 컨트랙트가 권한을 가질 수 있도록 해야 한다.
+All the description is for the [Bosagora Mainnet](https://boascan.io).
 
 
-# Install node modules
-You should install node modules before running scripts and test codes
+# Deployment of contracts
+BOASpace 컨트랙트 배포시 다음에 기술된 순서가 지켜져야 합니다.
+
+## Prerequisites
+프로젝트 루트 디렉토레에서 필요한 프로그램과 Node 패키지를 설치합니다.
 ```
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
+source .bashrc
+nvm install 16
+nvm use 16
+npm i -g yarn
 yarn install
 ```
 
-# Deployment of contracts
-You should follow the order of deploying the contracts because one contract should be deployed before another contract like the `ConduitController` should be earlier deployed to deploy the `Seaport` by passing the address of the `ConduitController` in the constructor.
+루트 디렉토리에 `.env` 파일 생성합니다.
+```
+cp .env.sample .env
+```
 
-### Deploying ConduitContraoller contract
-Run this script for deploying the contract.
+`.env` 파일에 BOASpace 관리자(배포자)키가 지정되어야 하고, 이 키는 `Admin1`이라는 이름으로 재단으로부터 부여된 것으로 Mainnet에 컨트랙트를 배포할 때 사용됩니다. 다음은 TestNet에서 사용되는 관리자 키입니다.
 ```
-npx hardhat run script/deploy_conduit.ts --network testnet
+ADMIN_KEY=0xd7912c64125d466be55d2ac220834571a39ff9abeb9ad6dfb6afe9a3a433ba7d
 ```
-You get the result of deploying the contract.
+
+## Deploying ConduitController contract
+다음의 스크립트를 사용하여 컨트랙트를 배포합니다.
+```
+npx hardhat run script/deploy_conduit_controller.ts --network mainnet
+```
+컨트랙트가 정상적으로 배포되면 다음과 같은 로그가 나타납니다.
 ```
 ConduitController - deployed to: 0x4d2335c88eb74ed54CEbA06Bb8DB69c4eab5feaD
 ```
 
-You should set the deployed address of the `ConduitContraoller` contract into the `CONDUIT_CONTROLLER_ADDRESS` constant in `.env` file.
+로그상의 `ConduitContraoller` 주소를 `.env` 파일의 `CONDUIT_CONTROLLER_ADDRESS`에 다음과 같이 지정합니다.
 ```
 CONDUIT_CONTROLLER_ADDRESS=0xFB15f7cB1E06544A791DbEd6AfdB9C705bF5eF60
 ```
 
-### Creating Conduit
-**We don't use a default conduit on trading NFTs. So we don't need the conduit in fact but we can set the default conduit anyway.**
+## Creating Conduit
+**BOASpace는 디폴트 Conduit을 사용하지 않으므로 이 단계를 건너뛰어도 됩니다.**
 
-We use a default conduit in the BosSpace, so we need to create the conduit which should be set to the `SharedStorefrontLazymintAdapter` contract.
+디폴트 Conduit은 `SharedStorefrontLazymintAdapter` 컨트랙트 배포시에 생성자의 인자로 사용됩니다.
 
-Before creating a default conduit, you should check the conduit key in the `.env` file as follows. Our default conduit key is always the same as the following value. The following conduit key should be used in the Agora mainnet.
+디폴트 Conduit을 생성하기 전에 `.env` 파일에 다음과 같이 사용할 Conduit 키를 지정합니다. Mainnet의 디폴트 Conduit 키는 `Admin1`의 주소로부터 생성할 수 있습니다. 다음은 Mainnet에서 사용되는 디폴트 Conduit 키입니다.
 ```
 CONDUIT_KEY=0xdedF18e2fdf26Ec8f889EfE4ec84D7206bDC431E000000000000000000000000
 ```
 
-Run this script for creating the default conduit.
+Conduit 키는 다음의 조합으로 생성될 수 있습니다. `[address]`는 의 사용자 계정의 주소입니다.
 ```
-npx hardhat run script/create_conduit.ts --network testnet
+`[address]` + `000000000000000000000000`
 ```
 
-And just check the conduit address for the conduit key. 
+다음의 스크립트로 Conduit를 생성합니다.
+```
+npx hardhat run script/create_conduit.ts --network mainnet
+```
+
+다음은 생성된 Conduit의 정보입니다.
 ```
 $ npx hardhat run script/get_conduit.ts --network testnet   
 Conduit address: 0x65a14fDc9d62fc15454FE3ba1b59ABc59FF58A1b
 conduitKey:  0xdedF18e2fdf26Ec8f889EfE4ec84D7206bDC431E000000000000000000000000
 ```
 
-### Deploying Seaport contract
-Run this script for deploying the contract.
+## Deploying Seaport contract
+다음의 스크립트를 사용하여 컨트랙트를 배포합니다.
 ```
-npx hardhat run script/deploy_seaport.ts --network testnet
+npx hardhat run script/deploy_seaport.ts --network mainnet
 ```
-You get the result of deploying the contract.
+컨트랙트가 정상적으로 배포되면 다음과 같은 로그가 나타납니다.
 ```
 Seaport - deployed to: 0xB38C5e7ecAe4a2E3B11E69AA98D9C5F087De8C90
 ```
 
-You should set the deployed address of the `Seaport` contract into the `SEAPORT_ADDRESS` constant in `.env` file.
+로그상의 `Seaport` 주소를 `.env` 파일의 `SEAPORT_ADDRESS`에 다음과 같이 지정합니다.
 ```
 SEAPORT_ADDRESS=0xB38C5e7ecAe4a2E3B11E69AA98D9C5F087De8C90
 ```
 
-Run this script for adding the channel for the Seaport address to the the default conduit.
+디폴트 Conduit을 사용하는 경우에 다음의 스크립트로 Conduit을 등록합니다. BOASpace는 디폴트 Conduit을 사용하지 않으므로 다음의 단계를 건너뛰어도 됩니다.
 ```
-npx hardhat run script/update_conduit_channel.ts --network testnet
+npx hardhat run script/update_conduit_channel.ts --network mainnet
 ```
 
-### Deploying AssetContractShared contract
-Set the `name`, `symbol`, `templateURI` in the `.env` file which are the properties of the contract. The value of `templateURI` is optional.
+## Deploying AssetContractShared contract
+**`AssetContractShared`는 이미 Testnet과 Mainnet에 배포되어 있습니다.**
+```
+AssetContractShared on Testnet: 0x2fddd0f488B767E8Dd42aE4E60f0685A2e15b1Fd
+AssetContractShared on Mainnet: 0xfC9f0cb32588433C160ad1E305027EAdc7bdbbE8
+```
+
+새로운 `AssetContractShared` 컨트랙트 배포시 다음의 절차를 따릅니다.
+
+`.env` 파일에 `name`, `symbol`, `templateURI` 정보를 다음과 같이 지정합니다. `templateURI`는 선택사항입니다.
 ```
 # Parameters of AssetContractShared constructor
 ASSET_CONTRACT_NAME="BOASPACE Collections"
 ASSET_CONTRACT_SYMBOL=BOASPACESTORE
 ASSET_CONTRACT_TEMPLATE_URI=
 ```
-Run this script for deploying the contract.
+다음의 스크립트를 사용하여 컨트랙트를 배포합니다.
 ```
-npx hardhat run script/deploy_asset.ts --network testnet
+npx hardhat run script/deploy_asset.ts --network mainnet
 ```
-You get the result of deploying the contract.
+컨트랙트가 정상적으로 배포되면 다음과 같은 로그가 나타납니다.
 ```
 AssetContractShared - deployed to: 0x5d41eb6b532660932627E3A9BaE5B94B797F18b5
 ```
 
-You should set the deployed address of the `AssetContractShared` contract into the `ASSET_CONTRACT_SHARED_ADDRESS` constant in `.env` file.
+로그상의 `AssetContractShared` 주소를 `.env` 파일의 `ASSET_CONTRACT_SHARED_ADDRESS`에 다음과 같이 지정합니다.
 ```
 ASSET_CONTRACT_SHARED_ADDRESS=0x5d41eb6b532660932627E3A9BaE5B94B797F18b5
 ```
 
-You can check the information on the deployed contract as follows.
+다음의 스크립트로 배포된 `AssetContractShared` 컨트랙트 정보를 확인할 수 있습니다.
+```
+npx hardhat run script/check_asset_contract.ts --network localnet
+```
 ```
 ====== AssetContractShared information ======
 address: 0x5d41eb6b532660932627E3A9BaE5B94B797F18b5
@@ -156,35 +147,37 @@ symbol: BOASTORE
 templateURI: 
 ```
 
-### Deploying SharedStorefrontLazyMintAdapter contract
-Run this script for deploying the contract.
+## Deploying SharedStorefrontLazyMintAdapter contract
+다음의 스크립트를 사용하여 컨트랙트를 배포합니다.
 ```
-npx hardhat run script/deploy_lazymint_adapter.ts --network testnet
+npx hardhat run script/deploy_lazymint_adapter.ts --network mainnet
 ```
-You get the result of deploying the contract.
+
+만약 디폴트 Conduit을 사용한다면 다음의 명령을 이용하여 컨트랙트를 배포합니다. BOASpace에서는 디폴트 Conduit을 사용하지 않으므로 현재 이 명령을 사용되지 않습니다.
+```
+CONDUIT=true npx hardhat run script/deploy_lazymint_adapter.ts --network mainnet
+```
+
+컨트랙트가 정상적으로 배포되면 다음과 같은 로그가 나타납니다.
 ```
 SharedStorefrontLazyMintAdapter - deployed to: 0xE11FDE48B267C0d4c56e38E7c7868aE5aE2C59Dd
 ```
 
-You should set the deployed address of the `SharedStorefrontLazymintAdapter` contract into the `LAZY_MINT_ADAPTER_ADDRESS` constant in `.env` file.
+로그상의 `SharedStorefrontLazymintAdapter` 주소를 `.env` 파일의 `LAZY_MINT_ADAPTER_ADDRESS`에 다음과 같이 지정합니다.
 ```
 LAZY_MINT_ADAPTER_ADDRESS=0xE11FDE48B267C0d4c56e38E7c7868aE5aE2C59Dd
 ```
 
-### Setting the shared proxy of AssetContractShared
-We must set the `SharedStorefrontLazyMintAdapter` contract as a shared proxy in order to make the contract have the role of transferring NFT tokens.
+## Setting the shared proxy of AssetContractShared
+배포된 `SharedStorefrontLazyMintAdapter` 컨트랙트를 `AssetContractShared`의 `shared proxy`로 지정해야 합니다. `AssetContractShared` NFT의 `transfer`함수는 소유자나 지정된 `shared proxy`에 의해서만 호출될 있도록 되어 있기 때문입니다.
 ```
-npx hardhat run script/add_shared_proxy.ts --network testnet
+npx hardhat run script/add_shared_proxy.ts --network mainnet
 ```
-
 
 # Minting AssetContractShared NFT Tokens
 
-### Set information for minting
-
-You should mint an NFT token before trading. This is a description of how to mint an NFT token. You could mint FINPL tokens also with these commands.
-
-Set the information of the NFT in `.env` file that you want to mint.
+## Set information for minting
+새로운 NFT 토큰을 민팅하기 위해서 다음의 정보를 `.env`에 세팅합니다.
 ```
 FINPL_NFT_INDEX=1
 FINPL_NFT_QUANTITY=100
@@ -192,30 +185,30 @@ FINPL_NFT_DATA=https://ipfs.io/ipfs/QmXdYWxw3di8Uys9fmWTmdariUoUgBCsdVfHtseL2dtE
 FINPL_NFT_CREATOR_KEY=bacfa3fbe768c1665feee09af7182ae53ca9a334db747b3751149f81e448ac26
 ```
 
-### Mint new NFT tokens
-Run this script to mint an NFT.
+## Mint new NFT tokens
+다음의 스크립트를 이용하여 위에 지정한 NFT 토큰을 민팅합니다.
 ```
-npx hardhat run script/finpl/mint.ts --network testnet'
+npx hardhat run script/finpl/mint.ts --network mainnet
 ```
 
-And you get the result of the minting.
+민팅의 결과가 다음과 같이 로그에 나타납니다.
 ```
 Combined tokenId: 78124813713363012903054561010911293954183699126175542122344455273147682259044 ( 0xacb913db781a46611faa04ff6cb9a370df069eed0000000000005e0000000064 )
 Token minted to: 0xAcb913db781a46611fAa04Ff6Cb9A370df069eed
 ```
 
-### Check the information on the minted NFT token
-Set the token ID to the `.env` file that you have minted.
+## Check the information on the minted NFT token
+민팅한 토큰의 아이디를 `.env`에 다음과 지정합니다.
 ```
 FINPL_NFT_LAST_COMBINE_TOKEN_ID=0xacb913db781a46611faa04ff6cb9a370df069eed0000000000005e0000000064
 ```
 
-Run the script to get information on the minted NFT token.
+다음의 스크립트로 민팅된 NFT 토큰 정보을 확인할 수 있습니다.
 ```
-npx hardhat run script/check_nft.ts --network testnet
+npx hardhat run script/check_nft.ts --network mainnet
 ```
 
-And you get the information.
+다음은 실행 결과입니다.
 ```
 ====== Minted NFT information ======
 tokenId: BigNumber { value: "78124813713363012903054561010911293954183699126175542122344455273147682259044" }
@@ -227,7 +220,73 @@ max supply: 100
 balance of creator: 100
 ```
 
+## Trading NFTs for checking
+민팅된 NFT 토큰을 다음의 절차를 통해서 전송할 수 있습니다.
+
+`ORDER_NFT_SELLER_KEY`에 NFT 소유자의 키를 지정하고, `ORDER_NFT_BUYER_KEY` 전송받을 구매자의 키를 지정합니다.
+```
+ORDER_NFT_BUYER_KEY=0x...
+ORDER_NFT_SELLER_KEY=0x...
+```
+
+다음의 스크립트로 NFT를 전송합니다.
+```
+npx hardhat run script/fulfill/order_seaport_erc1155_to_boa.ts --network mainnet
+```
+
+다음의 스크립트로 전송 결과를 확인합니다.
+```
+npx hardhat run script/fulfill/check_fulfill_order.ts --network mainnet
+```
+
+다음과 같이 BOA, WBOA, NFT의 정보가 나타납니다.
+```
+====== Asset Token
+contract address: 0x2fddd0f488B767E8Dd42aE4E60f0685A2e15b1Fd
+NFT creator: 0x414BB02bDe65Ba63c9A99709b388E30669Bf2De7
+====== NFT seller
+address: 0x414BB02bDe65Ba63c9A99709b388E30669Bf2De7
+BOA     : 11056865472547138871909
+WBOA    : 5100000000000000000
+Asset amount    : 87
+====== NFT buyer
+address: 0x214a3aE4f8A245197db523fb81Dd8aD93c1c7B53
+BOA     : 995179832817305886482
+WBOA    : 1200000000000000000
+Asset amount    : 113
+```
+
+# NFTs of the BOB's project
+
+## Mainnet BOB's project
+다음은 `Admin2` 키로 Mainnet에 민팅된 `BOB's project` NFT의 정보입니다.
+```
+Minted at 2022.12.19 16:30 KST
+Contract: 0xfC9f0cb32588433C160ad1E305027EAdc7bdbbE8
+Token Id: 43667820570476046280485912386194575442785224451789146690794321896035701489864
+Metadata: https://ipfs.io/ipfs/QmYsGGFqBLXCNtXfcmPeVwVxtgVjGQXDFHqZzRu6FxTYvc
+Creator: 0x608b1C4e78a37b459D7Cf51F9e31027DAa4f0C0B
+Token Index: 0
+Max Supply: 200
+```
+
+## Testnet BOB's project
+다음은 Testnet에 민팅된 `BOB's project` NFT의 정보입니다.
+```
+TokenId: 29534064577826613153035026441167017977610697301918714276121482769509518409928
+Contract: 0x2fddd0f488B767E8Dd42aE4E60f0685A2e15b1Fd
+Metadata:  https://ipfs.io/ipfs/QmYsGGFqBLXCNtXfcmPeVwVxtgVjGQXDFHqZzRu6FxTYvc
+Creator: 0x414BB02bDe65Ba63c9A99709b388E30669Bf2De7
+Token Index: 131
+Max Supply: 200
+```
+
+# Notes
+* 거래 실행시 모든 수수료는 판매자에게 전달된 판매 대금에서 나오는 것이므로, 판매자의 ERC20 토큰에 대해서 `approve` 호출을 통해서 Seaport 컨트랙트가 권한을 가질 수 있도록 해야 한다.
+
 # Transfer of AssetContractShared Tokens with Seaport
+You can test for trading NFTs on the Testnet with the following scripts.
+
 There are three ways of fulfilling an order for trading `AssetContractShared` tokens.
 1. Fulfill an order through the `Seaport` and `SharedStorefrontLazyMintAdapter` contracts.
 2. Fulfill an order through the `Seaport` and `Conduit` and `SharedStorefrontLazyMintAdapter` contracts.
@@ -237,7 +296,7 @@ We describe how to use scripts to fulfill an order and check it in three ways.
 
 This description is the steps for trading NFTs in [TestNet](https://testnet.boascan.io).
 
-### Prerequisites
+## Prerequisites
 You should set the token ID which you want to trade in the following commands.
 ```
 FINPL_NFT_LAST_COMBINE_TOKEN_ID=29534064577826613153035026441167017977610697301918714276122831730638822834376
@@ -281,8 +340,8 @@ We summarize the addresses for the contracts that are used frequently in this do
 0x2fddd0f488B767E8Dd42aE4E60f0685A2e15b1Fd: AssetContractShared 
 ```
 
-### Fulfill through the Seaport and SharedStorefrontLazyMintAdapter without Conduit
-#### Offer NFT and receive BOA as consideration
+## Fulfill through the Seaport and SharedStorefrontLazyMintAdapter without Conduit
+### Offer NFT and receive BOA as consideration
 This describes the steps for fulfilling an order that consists of an offer having an `AssetContractShard` NFT and a consideration having 0.1 `BOA` through `Seaport` and `SharedStorefrontLazyMintAdapter` contracts.
 
 You should check the balances of the offerer and fulfiller with this command before fulfilling an order.
@@ -344,7 +403,7 @@ You should check the result of fulfilling an order with the `check_fulfill_order
 npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet
 ```
 
-#### Offer WBOA and receive NFT as consideration
+### Offer WBOA and receive NFT as consideration
 This describes fulfilling an order that consists of an offer having an 0.1 `WBOA` and a consideration having an `NFT` token.
 
 You should check the balances of the offerer and fulfiller with this command.
@@ -407,7 +466,7 @@ You should check the result of fulfilling an order with the `check_fulfill_order
 npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet 
 ```
 
-#### Offer WBOA and receive NFT that is lazily minted as consideration
+### Offer WBOA and receive NFT that is lazily minted as consideration
 This describes fulfilling an order **without any conduit** which consists of an offer having an 0.1 `WBOA` and a consideration having `NFT` tokens that are going to be lazily minted.
 
 Before we get started, we should set the information for lazily minted tokens in the `.env` file as described in [this section](#set-information-for-minting).
@@ -472,7 +531,7 @@ You should check the result of fulfilling an order with the `check_fulfill_order
 npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet 
 ```
 
-#### Offer NFT that is lazily minted and receive BOA as consideration
+### Offer NFT that is lazily minted and receive BOA as consideration
 This describes the steps for fulfilling an order **without any conduit** that consists of an offer having an `AssetContractShard` NFT and a consideration having 0.1 `BOA` through `Seaport` and `SharedStorefrontLazyMintAdapter` contracts.
 
 Before we get started, we should set the information for lazily minted tokens in the `.env` file as described in [this section](#set-information-for-minting).
@@ -536,8 +595,8 @@ You should check the result of fulfilling an order with the `check_fulfill_order
 npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet
 ```
 
-### Fulfill through the Seaport, Conduit, and SharedStorefrontLazyMintAdapter
-#### Offer WBOA and receive NFT as consideration
+## Fulfill through the Seaport, Conduit, and SharedStorefrontLazyMintAdapter
+### Offer WBOA and receive NFT as consideration
 This describes fulfilling an order **through a default conduit** which consists of an offer having an 0.1 `WBOA` and a consideration having an `NFT` token.
 
 You should check the balances of the offerer and fulfiller with this command.
@@ -601,7 +660,7 @@ npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet
 ```
 
 
-#### Offer WBOA and receive NFT that is lazily minted as consideration
+### Offer WBOA and receive NFT that is lazily minted as consideration
 This describes fulfilling an order **through a default conduit** which consists of an offer having an 0.1 `WBOA` and a consideration having `NFT` tokens that are going to be lazily minted.
 
 Before we get started, we should set the information for lazily minted tokens in the `.env` file as described in [this section](#set-information-and-mint-an-nft-token).
@@ -666,7 +725,7 @@ You should check the result of fulfilling an order with the `check_fulfill_order
 npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet 
 ```
 
-### Fulfill only through the Seaport
+## Fulfill only through the Seaport
 This describes the steps for fulfilling an order that consists of an offer having an `AssetContractShard` NFT and a consideration having 0.1 `BOA` through the `Seaport` contract without `SharedStorefrontLazyMintAdapter` or `Conduit` contracts.
 ```
 npx hardhat run script/fulfill/order_asset_erc1155_to_boa.ts --network testnet
