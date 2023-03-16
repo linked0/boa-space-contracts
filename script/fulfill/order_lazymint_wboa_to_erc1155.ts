@@ -67,10 +67,13 @@ async function main() {
     await wboaToken.connect(nftBuyerSigner).approve(conduitAddress, selerAmountTotal);
 
     // update channel for marketplace to conduit
-    let status = await conduitController.connect(adminSigner).getChannelStatus(conduitAddress, marketplace.address);
-    if (!status) {
-        console.log("updateChannel:", conduitAddress, marketplace.address);
-        await conduitController.connect(adminSigner).updateChannel(conduitAddress, marketplace.address, true);
+    let status: boolean = false;
+    try {
+        status = await conduitController.connect(adminSigner).getChannelStatus(conduitAddress, marketplace.address);
+    }
+    catch (exception) {
+        console.log("No conduit exists. Please create a conduit before running this script.");
+        return;
     }
 
     // The needed amount of WBOA for trading
