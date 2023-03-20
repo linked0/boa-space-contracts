@@ -169,6 +169,8 @@ LAZY_MINT_ADAPTER_ADDRESS=0xE11FDE48B267C0d4c56e38E7c7868aE5aE2C59Dd
 ```
 
 ## Setting the shared proxy of AssetContractShared
+**다음의 프락시 세팅은 AssetContractShared를 배포한 키를 이용하여 실행합니다.**
+
 배포된 `SharedStorefrontLazyMintAdapter` 컨트랙트를 `AssetContractShared`의 `shared proxy`로 지정해야 합니다. `AssetContractShared` NFT의 `transfer`함수는 소유자나 지정된 `shared proxy`에 의해서만 호출될 있도록 되어 있기 때문입니다.
 ```
 npx hardhat run script/add_shared_proxy.ts --network mainnet
@@ -177,6 +179,8 @@ npx hardhat run script/add_shared_proxy.ts --network mainnet
 # Minting AssetContractShared NFT Tokens
 
 ## Set information for minting
+`.env` 파일에 BOASpace `AssetContractShared` 민팅 관리자키가 지정되어야 하고, 이 키는 `Admin2`이라는 이름으로 재단으로부터 부여된 것으로 Mainnet에 컨트랙트를 배포할 때 사용됩니다. 해당키를 `FINPL_NFT_CREATOR_KEY`에 세팅합니다.
+
 새로운 NFT 토큰을 민팅하기 위해서 다음의 정보를 `.env`에 세팅합니다.
 ```
 FINPL_NFT_INDEX=1
