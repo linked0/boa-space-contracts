@@ -137,7 +137,7 @@ ASSET_CONTRACT_SHARED_ADDRESS=0x5d41eb6b532660932627E3A9BaE5B94B797F18b5
 
 다음의 스크립트로 배포된 `AssetContractShared` 컨트랙트 정보를 확인할 수 있습니다.
 ```
-npx hardhat run script/check_asset_contract.ts --network localnet
+npx hardhat run script/check_asset_contract.ts --network mainnet
 ```
 ```
 ====== AssetContractShared information ======
