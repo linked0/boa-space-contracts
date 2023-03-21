@@ -289,74 +289,60 @@ Max Supply: 200
 * 거래 실행시 모든 수수료는 판매자에게 전달된 판매 대금에서 나오는 것이므로, 판매자의 ERC20 토큰에 대해서 `approve` 호출을 통해서 Seaport 컨트랙트가 권한을 가질 수 있도록 해야 한다.
 
 # Transfer of AssetContractShared Tokens with Seaport
-You can test for trading NFTs on the Testnet with the following scripts.
+다음의 스크립트를 이용하여 테스트넷 상에서 NFT를 거래할 수 있습니다.
 
-There are three ways of fulfilling an order for trading `AssetContractShared` tokens.
-1. Fulfill an order through the `Seaport` and `SharedStorefrontLazyMintAdapter` contracts.
-2. Fulfill an order through the `Seaport` and `Conduit` and `SharedStorefrontLazyMintAdapter` contracts.
-3. Fulfill an order through the `Seaport` contract.
+다음의 세가지 방법으로 `AssetContractShared` 토큰을 거래합니다.
+1. `Seaport`와 `SharedStorefrontLazyMintAdapter` 컨트랙트를 이용하기
+2. `Seaport`, `Conduit`, `SharedStorefrontLazyMintAdapter` 컨트랙트 이용하기
+3. `Seaport` 컨트랙트 이용하기
 
-We describe how to use scripts to fulfill an order and check it in three ways. 
-
-This description is the steps for trading NFTs in [TestNet](https://testnet.boascan.io).
+거래에 대한 내용은 [TestNet Scan](https://testnet.boascan.io) 사이트에서 확인할 수 있습니다.
 
 ## Prerequisites
-You should set the token ID which you want to trade in the following commands.
+'.env' 파일에 다음과 같이 거래하고자 하는 NFT의 아이디를 지정합니다.
 ```
 FINPL_NFT_LAST_COMBINE_TOKEN_ID=29534064577826613153035026441167017977610697301918714276122831730638822834376
 ```
 
-And you should also set the keys of the NFT buyer and the NFT buyer in the `.env` file. You should copy the `.env.sample` to the `.env` file if there is no `.env` file in your local environment.
-
+그리고, 해당 NFT의 판매자(소유자)와 구매자의 키를 `.env` 파일에 다음과 같이 지정합니다.
 ```
 ORDER_NFT_BUYER_KEY=0x158ad623fa14d8ca6bce416b877905b2d11d3842ddd4adbb71332e809263abb5
 ORDER_NFT_SELLER_KEY=0xbacfa3fbe768c1665feee09af7182ae53ca9a334db747b3751149f81e448ac26
 ```
 
-- `ORDER_NFT_BUYER_KEY` is for the key of the buyer who creates an order having an offer of BOAs and WBOAs, or fulfills the order. 
-- `ORDER_NFT_SELLER_KEY` is for the key of the seller who fulfills an order from the seller or creates an order having NFT tokens he/she owns.
+- `ORDER_NFT_BUYER_KEY`는 NFT의 구매자입니다.
+- `ORDER_NFT_SELLER_KEY`는 NFT의 판매자이자 소유자입니다.
 
-You should check the balances of the offerer and fulfiller for the token ID with the following command.
+다음의 스크립트 실행을 통해서 판매자와 구매자의 상태를 확인할 수 있습니다.
 ```
 npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet
 ```
-And you can get the following information about balances of BOA, WBOA, and NFTs for the offerer and fulfiller from the network.
+스크립트를 실행하면 다음과 같이 BOA, WBOA, NFT 정보를 출력합니다.
 ```
-====== Asset Token
-contract address: 0x2fddd0f488B767E8Dd42aE4E60f0685A2e15b1Fd
-NFT creator: 0x414BB02bDe65Ba63c9A99709b388E30669Bf2De7
-====== NFT seller
-address: 0x414BB02bDe65Ba63c9A99709b388E30669Bf2De7
-BOA     : 11056865472547138871909
-WBOA    : 5100000000000000000
-Asset amount    : 87
-====== NFT buyer
-address: 0x214a3aE4f8A245197db523fb81Dd8aD93c1c7B53
-BOA     : 995179832817305886482
-WBOA    : 1200000000000000000
-Asset amount    : 113
-```
-
-We summarize the addresses for the contracts that are used frequently in this document.
-```
-0x8a8f3d7b1D6Eebe8D227499B563bD0319Ec8CBC0: SharedStorefrontLazyMintAdapter
-0x7700a9Bc2c4a523EFFd6B506b6f78872F247161C: WBOA
-0x2fddd0f488B767E8Dd42aE4E60f0685A2e15b1Fd: AssetContractShared 
+====== Asset Token: 0x2fddd0f488B767E8Dd42aE4E60f0685A2e15b1Fd
+token ID: 9490434390849790054731572076376116650519590089042247525170096698442617143872
+NFT creator: 0x14Fb65402700B823Baf0C75f658509B0375fe5fD
+====== NFT seller: 0x14Fb65402700B823Baf0C75f658509B0375fe5fD
+BOA: 3858.120525058725660969
+WBOA: 920.925000000000000000
+NFT: 999737
+====== NFT buyer: 0xAcb913db781a46611fAa04Ff6Cb9A370df069eed
+BOA: 4107.398464395564412129
+WBOA: 290.900000000000000000
+NFT: 250
 ```
 
 ## Fulfill through the Seaport and SharedStorefrontLazyMintAdapter without Conduit
-### Offer NFT and receive BOA as consideration
-This describes the steps for fulfilling an order that consists of an offer having an `AssetContractShard` NFT and a consideration having 0.1 `BOA` through `Seaport` and `SharedStorefrontLazyMintAdapter` contracts.
+다음의 세가지 예제는 **Conduit**을 사용하지 않고, Seaport와 SharedStorefrontLazyMintAdapter 컨트랙트를 사용하는 거래에 대한 예제입니다.
 
-You should check the balances of the offerer and fulfiller with this command before fulfilling an order.
-```
-npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet
-```
-And run this command for fulfilling an order.
+### 1. NFT를 제공하고 BOA를 대금으로 받기
+판매자가 한 개의 NFT를 제공하고, 0.1 `BOA`를 받는 거래에 대한 내용입니다.
+
+다음의 스크립트 실행을 통해서 거래를 진행합니다.
 ```
 npx hardhat run script/fulfill/order_seaport_erc1155_to_boa.ts --network testnet
 ```
-The details of the order are as follows.
+다음은 거래의 상세정보입니다.
 ```
 order: {
     parameters: {
@@ -402,23 +388,19 @@ consideration: [
 ]
 ```
 
-You should check the result of fulfilling an order with the `check_fulfill_order.ts` script as you had checked the balances of the offerer and buyer before fulfilling the order.
+다음의 스크립트 실행으로 거래 결과를 확인합니다.
 ```
 npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet
 ```
 
-### Offer WBOA and receive NFT as consideration
-This describes fulfilling an order that consists of an offer having an 0.1 `WBOA` and a consideration having an `NFT` token.
+### 2. 구매자가 WBOA를 제공하고 NFT 받기
+구매자가 0.1 `WBOA` 제공하고, 한 개의 `NFT`를 받는 거래입니다.
 
-You should check the balances of the offerer and fulfiller with this command.
-```
-npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet
-```
-And run this command for fulfilling an order.
+다음의 스크립트 실행을 통해서 거래를 진행합니다.
 ```
 npx hardhat run script/fulfill/order_seaport_wboa_to_erc1155.ts --network testnet
 ```
-The details of the order are as follows.
+다음은 거래의 상세정보입니다.
 ```
 order: {
     parameters: {
@@ -465,25 +447,21 @@ consideration: [
 ]
 ```
 
-You should check the result of fulfilling an order with the `check_fulfill_order.ts` script as you had checked the balances of the offerer and fulfiller before fulfilling the order.
-```
-npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet 
-```
-
-### Offer WBOA and receive NFT that is lazily minted as consideration
-This describes fulfilling an order **without any conduit** which consists of an offer having an 0.1 `WBOA` and a consideration having `NFT` tokens that are going to be lazily minted.
-
-Before we get started, we should set the information for lazily minted tokens in the `.env` file as described in [this section](#set-information-for-minting).
-
-You should check the balances of the offerer and fulfiller with this command.
+다음의 스크립트 실행으로 거래 결과를 확인합니다.
 ```
 npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet
 ```
-And run this command for fulfilling an order.
+
+### 3. 구매자가 WBOA를 제공하고 `Lazy Mint`되는 NFT 받기
+구매자가 0.1 `WBOA`를 제공하고, 한 개의 `NFT`를 받는 거래로서, 토큰이 `Lazy Mint` 됩니다.
+
+`Lazy Mint`를 위해서 [이 섹션](#set-information-for-minting)에 기술된 것을 참고하여 `.env`에 필요한 정보를 지정합니다.
+
+다음의 스크립트 실행을 통해서 거래를 진행합니다.
 ```
 npx hardhat run script/fulfill/order_seaport_wboa_to_erc1155_lazymint.ts --network testnet
 ```
-The details of the order are as follows.
+다음은 거래의 상세정보입니다.
 ```
 order: {
   parameters: {
@@ -530,25 +508,26 @@ consideration: [
 ]
 ```
 
-You should check the result of fulfilling an order with the `check_fulfill_order.ts` script as you had check the balances of the offerer and fulfiller before fulfilling the order.
+
+`.env` 파일에 다음과 같이, 새로 민팅된 NFT의 아이디를 지정하고 거래 결과를 확인할 수 있습니다.
+```
+FINPL_NFT_LAST_COMBINE_TOKEN_ID=29534064577826613153035026441167017977610697301918714276122832834548497121480
+```
+다음의 스크립트 실행으로 거래 결과를 확인합니다.
 ```
 npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet 
 ```
 
-### Offer NFT that is lazily minted and receive BOA as consideration
-This describes the steps for fulfilling an order **without any conduit** that consists of an offer having an `AssetContractShard` NFT and a consideration having 0.1 `BOA` through `Seaport` and `SharedStorefrontLazyMintAdapter` contracts.
+### 4. 판매자가 `Lazy Mint`되는 NFT 주고 BOA 받기
+판매자가 한 개의 NFT를 제공하고 0.1 `BOA`를 받는 거래로서, 토큰이 `Lazy Mint` 됩니다.
 
-Before we get started, we should set the information for lazily minted tokens in the `.env` file as described in [this section](#set-information-for-minting).
+`Lazy Mint`를 위해서 [이 섹션](#set-information-for-minting)에 기술된 것을 참고하여 `.env`에 필요한 정보를 지정합니다.
 
-You should check the balances of the offerer and fulfiller with this command before fulfilling an order.
-```
-npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet
-```
-And run this command for fulfilling an order.
+다음의 스크립트 실행을 통해서 거래를 진행합니다.
 ```
 npx hardhat run script/fulfill/order_seaport_erc1155_to_boa_lazymint.ts --network testnet
 ```
-The details of the order are as follows.
+다음은 거래의 상세정보입니다.
 ```
 order: {
   parameters: {
@@ -594,90 +573,26 @@ consideration: [
 ]
 ```
 
-You should check the result of fulfilling an order with the `check_fulfill_order.ts` script as you had checked the balances of the offerer and buyer before fulfilling the order.
+`.env` 파일에 다음과 같이, 새로 민팅된 NFT의 아이디를 지정하고 거래 결과를 확인할 수 있습니다.
 ```
-npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet
+FINPL_NFT_LAST_COMBINE_TOKEN_ID=29534064577826613153035026441167017977610697301918714276122833929662078386376
 ```
-
-## Fulfill through the Seaport, Conduit, and SharedStorefrontLazyMintAdapter
-### Offer WBOA and receive NFT as consideration
-This describes fulfilling an order **through a default conduit** which consists of an offer having an 0.1 `WBOA` and a consideration having an `NFT` token.
-
-You should check the balances of the offerer and fulfiller with this command.
-```
-npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet
-```
-And run this command for fulfilling an order.
-```
-npx hardhat run script/fulfill/order_conduit_wboa_to_erc1155.ts --network testnet
-```
-The details of the order are as follows. You can see that we are using the default conduit key for which we have created a Conduit contract.
-```
-order: {
-  parameters: {
-    offerer: '0x214a3aE4f8A245197db523fb81Dd8aD93c1c7B53',
-    zone: '0x0000000000000000000000000000000000000000',
-    offer: [ [Object] ],
-    consideration: [ [Object] ],
-    totalOriginalConsiderationItems: 1,
-    orderType: 1,
-    zoneHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
-    salt: '0x9f91dd2c2eb0c404bbc70c3d8a9395b14a1541fb6b905bb4f4355f1ea18f3e6f',
-    conduitKey: '0x82fFb1bB229552D020C88b9eE8D5e4042E6Cbd42000000000000000000000000',
-    startTime: 0,
-    endTime: BigNumber { value: "5172014448931175958106549077934080" }
-  },
-  signature: '0x450b76f99f3e14c079cd0af21018bac9ca2eb0e6d3e1ffb27a189f478462554d237a6b7c20bf1b7c7ac0ba48531ce09c701264edf6a4586df899f6b6568e7ef41c',
-  numerator: 1,
-  denominator: 1,
-  extraData: '0x'
-}
-```
-```
-offer: [
-  {
-    itemType: 1,
-    token: '0x7700a9Bc2c4a523EFFd6B506b6f78872F247161C',
-    identifierOrCriteria: BigNumber { value: "0" },
-    startAmount: BigNumber { value: "100000000000000000" },
-    endAmount: BigNumber { value: "100000000000000000" }
-  }
-]
-```
-
-```
-consideration: [
-  {
-    itemType: 3,
-    token: '0x5Ea2E76D2CEA6051bdd1D41eBAebF069BA973642',
-    identifierOrCriteria: BigNumber { value: "29534064577826613153035026441167017977610697301918714276122830631127195058376" },
-    startAmount: BigNumber { value: "1" },
-    endAmount: BigNumber { value: "1" },
-    recipient: '0x214a3aE4f8A245197db523fb81Dd8aD93c1c7B53'
-  }
-]
-```
-
-You should check the result of fulfilling an order with the `check_fulfill_order.ts` script as you had check the balances of the offerer and fulfiller before fulfilling the order.
+다음의 스크립트 실행으로 거래 결과를 확인합니다.
 ```
 npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet 
 ```
 
+## Fulfill through the Seaport, Conduit, and SharedStorefrontLazyMintAdapter
+다음의 세가지 예제는 **기본 Conduit**을 사용하고, Seaport와 SharedStorefrontLazyMintAdapter 컨트랙트를 사용하는 거래에 대한 예제입니다.
 
-### Offer WBOA and receive NFT that is lazily minted as consideration
-This describes fulfilling an order **through a default conduit** which consists of an offer having an 0.1 `WBOA` and a consideration having `NFT` tokens that are going to be lazily minted.
+### 1. 구매자가 WBOA 제공하고 NFT 받기
+구매자가 0.1 `WBOA` 제공하고, 한 개의 `NFT`를 받습니다.
 
-Before we get started, we should set the information for lazily minted tokens in the `.env` file as described in [this section](#set-information-and-mint-an-nft-token).
-
-You should check the balances of the offerer and fulfiller with this command.
+다음의 스크립트 실행을 통해서 거래를 진행합니다.
 ```
-npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet
+npx hardhat run script/fulfill/order_conduit_wboa_to_erc1155.ts --network testnet
 ```
-And run this command for fulfilling an order.
-```
-npx hardhat run script/fulfill/order_lazymint_wboa_to_erc1155.ts --network testnet
-```
-The details of the order are as follows. You can see that we are using the default conduit key for which we are create a Conduit contract.
+다음은 거래의 상세정보입니다. 기본 Conduit 키가 지정되어 있음을 확인할 수 있습니다.
 ```
 order: {
   parameters: {
@@ -724,17 +639,84 @@ consideration: [
 ]
 ```
 
-You should check the result of fulfilling an order with the `check_fulfill_order.ts` script as you had check the balances of the offerer and fulfiller before fulfilling the order.
+다음의 스크립트 실행으로 거래 결과를 확인합니다.
+```
+npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet 
+```
+
+### 2. 구매자가 WBOA를 제공하고 `Lazy Mint`되는 NFT 받기
+구매자가 0.1 `WBOA`를 제공하고, 한 개의 `NFT`를 받는 거래로서, 토큰이 `Lazy Mint` 됩니다.
+
+`Lazy Mint`를 위해서 [이 섹션](#set-information-for-minting)에 기술된 것을 참고하여 `.env`에 필요한 정보를 지정합니다.
+
+다음의 스크립트 실행을 통해서 거래를 진행합니다.
+```
+npx hardhat run script/fulfill/order_lazymint_wboa_to_erc1155.ts --network testnet
+```
+다음은 거래의 상세정보입니다. 기본 Conduit 키가 지정되어 있음을 확인할 수 있습니다.
+```
+order: {
+  parameters: {
+    offerer: '0x214a3aE4f8A245197db523fb81Dd8aD93c1c7B53',
+    zone: '0x0000000000000000000000000000000000000000',
+    offer: [ [Object] ],
+    consideration: [ [Object] ],
+    totalOriginalConsiderationItems: 1,
+    orderType: 1,
+    zoneHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+    salt: '0x9f91dd2c2eb0c404bbc70c3d8a9395b14a1541fb6b905bb4f4355f1ea18f3e6f',
+    conduitKey: '0x82fFb1bB229552D020C88b9eE8D5e4042E6Cbd42000000000000000000000000',
+    startTime: 0,
+    endTime: BigNumber { value: "5172014448931175958106549077934080" }
+  },
+  signature: '0x450b76f99f3e14c079cd0af21018bac9ca2eb0e6d3e1ffb27a189f478462554d237a6b7c20bf1b7c7ac0ba48531ce09c701264edf6a4586df899f6b6568e7ef41c',
+  numerator: 1,
+  denominator: 1,
+  extraData: '0x'
+}
+```
+```
+offer: [
+  {
+    itemType: 1,
+    token: '0x7700a9Bc2c4a523EFFd6B506b6f78872F247161C',
+    identifierOrCriteria: BigNumber { value: "0" },
+    startAmount: BigNumber { value: "100000000000000000" },
+    endAmount: BigNumber { value: "100000000000000000" }
+  }
+]
+```
+
+```
+consideration: [
+  {
+    itemType: 3,
+    token: '0x5Ea2E76D2CEA6051bdd1D41eBAebF069BA973642',
+    identifierOrCriteria: BigNumber { value: "29534064577826613153035026441167017977610697301918714276122830631127195058376" },
+    startAmount: BigNumber { value: "1" },
+    endAmount: BigNumber { value: "1" },
+    recipient: '0x214a3aE4f8A245197db523fb81Dd8aD93c1c7B53'
+  }
+]
+```
+
+`.env` 파일에 다음과 같이, 새로 민팅된 NFT의 아이디를 지정하고 거래 결과를 확인할 수 있습니다.
+```
+FINPL_NFT_LAST_COMBINE_TOKEN_ID=29534064577826613153035026441167017977610697301918714276122830631127195058376
+```
+다음의 스크립트 실행으로 거래 결과를 확인합니다.
 ```
 npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet 
 ```
 
 ## Fulfill only through the Seaport
-This describes the steps for fulfilling an order that consists of an offer having an `AssetContractShard` NFT and a consideration having 0.1 `BOA` through the `Seaport` contract without `SharedStorefrontLazyMintAdapter` or `Conduit` contracts.
+다음의 예제는 `Conduit`이나 `SharedStorefrontLazyMintAdapter`를 **사용하지 않고**, `Seaport` 컨트랙트만을 사용하는 거래입니다. 판매자가 한 개의 NFT를 제공하고, 0.1 `BOA`를 받습니다.
+
+다음의 스크립트 실행을 통해서 거래를 진행합니다.
 ```
 npx hardhat run script/fulfill/order_asset_erc1155_to_boa.ts --network testnet
 ```
-The order will have similar components as follows.
+다음은 거래의 상세정보입니다.
 ```
 order: {
     parameters: {
@@ -782,7 +764,7 @@ consideration: [
 
 ```
 
-You should check the result with the `check_fulfill_order.ts` script as you had checked the status of the offerer and fulfiller before fulfilling the order.
+다음의 스크립트 실행으로 거래 결과를 확인합니다.
 ```
-npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet
+npx hardhat run script/fulfill/check_fulfill_order.ts --network testnet 
 ```
